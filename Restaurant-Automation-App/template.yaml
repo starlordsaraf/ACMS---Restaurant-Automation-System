@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Restaurant-Automation-App
+
+  Sample SAM Template for Restaurant-Automation-App
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  RestaurantTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: restaurants
+      AttributeDefinitions:
+        - AttributeName: Resid
+          AttributeType: S  
+      KeySchema:
+        - AttributeName: Resid
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
+
+  RestaurantFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: restaurant/
+      Handler: app.app
+      Runtime: python3.6
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName:
+              !Ref RestaurantTable
+      Events:
+        Test:
+          Type: Api
+          Properties:
+              Path: /
+              Method: get
+        ListRestaurants:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /restaurants
+            Method: get
+        PutRestaurants:
+          Type: Api
+          Properties:
+            Path: /restaurants
+            Method: post
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  RestaurantApi:
+    Description: "API Gateway endpoint URL for Prod stage for restuarant function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  RestaurantFunction:
+    Description: "Restaurant Lambda Function ARN"
+    Value: !GetAtt RestaurantFunction.Arn
+  RestaurantFunctionIamRole:
+    Description: "Implicit IAM Role created for Restaurant function"
+    Value: !GetAtt RestaurantFunctionRole.Arn
