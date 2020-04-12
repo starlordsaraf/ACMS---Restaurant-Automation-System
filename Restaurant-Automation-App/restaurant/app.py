@@ -62,3 +62,17 @@ def put_or_list_restuarants():
             {'Content-Type': "application/json"}
         )
 
+@app.route('/restaurants/menu/<string:resid>', methods=['GET','POST'])
+def menu(resid):
+    if(request.method == 'GET'):
+        res = table.scan()['Items']
+        for restaurants in res:
+            if(restaurants['Resid']==resid):
+                menu=restaurants['Menu']
+                return(
+                    json.dumps(menu),
+                    200,
+                    {'Content-Type': "application/json"}
+                )
+            else:
+                return(json.dumps("Restaurant doesnt exist"),200,{'Content-Type': "application/json"})

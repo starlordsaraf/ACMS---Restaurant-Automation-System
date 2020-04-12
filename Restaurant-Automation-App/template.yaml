@@ -51,6 +51,11 @@ Resources:
           Properties:
             Path: /restaurants
             Method: post
+        ReadMenu:
+          Type: Api
+          Properties:
+            Path: /restaurants/menu/{resid}
+            Method: get
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
