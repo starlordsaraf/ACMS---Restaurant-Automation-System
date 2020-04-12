@@ -62,3 +62,30 @@ def put_or_list_restuarants():
             {'Content-Type': "application/json"}
         )
 
+
+@app.route('/restaurants/menu/<string:resid>', methods=['GET','POST'])
+def menu(resid):
+    if(request.method == 'GET'):
+        menu = table.get_item(Key= {"Resid":resid},
+            ProjectionExpression= "Menu")
+        if(menu):
+            return(
+                json.dumps(menu),
+                200,
+                {'Content-Type': "application/json"}
+            )
+        return(json.dumps("Restaurant doesn't exist"),200,{'Content-Type': "application/json"})
+
+    elif(request.method == 'POST'):
+        dish=request.json
+        table.update_item(
+                Key= {"Resid": resid},
+                UpdateExpression= "SET #Menu = list_append(#Menu,:dish)",
+                ExpressionAttributeNames = {"#Menu":"Menu"},
+                ExpressionAttributeValues= {":dish": [dish]}
+            )
+        return (
+            json.dumps({"message": "Menu added"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
