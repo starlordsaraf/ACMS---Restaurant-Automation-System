@@ -43,7 +43,7 @@ def put_or_list_restuarants():
 def getseatingchart(resid):
     response = table.query(IndexName="seatingGSI",KeyConditionExpression=Key("Resid").eq(resid))
     if(response['Items'][0]["Seating"]==[]):
-        return(json.dumps("Seating Chart not updated"),204,{'Content-Type': "application/json"})
+        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"})
     else:
         return(jsonify(response['Items'][0]['Seating']),200, {'Content-Type': "application/json"})
 
