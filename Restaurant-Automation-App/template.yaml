@@ -22,8 +22,31 @@ Resources:
         - AttributeName: Resid
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 10
-        WriteCapacityUnits: 10
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30
+      GlobalSecondaryIndexes:
+        - IndexName: menuGSI
+          KeySchema:
+            - AttributeName: Resid
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - Menu
+            ProjectionType: INCLUDE 
+          ProvisionedThroughput:
+            ReadCapacityUnits: 30
+            WriteCapacityUnits: 30
+        - IndexName: seatingGSI
+          KeySchema:
+            - AttributeName: Resid
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - Seating
+            ProjectionType: INCLUDE 
+          ProvisionedThroughput:
+            ReadCapacityUnits: 30
+            WriteCapacityUnits: 30
 
   RestaurantFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -55,6 +78,11 @@ Resources:
           Type: Api
           Properties:
             Path: /restaurants/menu/{resid}
+            Method: get
+        ReadSeating:
+          Type: Api
+          Properties:
+            Path: /restaurants/seating/{resid}
             Method: get
 
 Outputs:
