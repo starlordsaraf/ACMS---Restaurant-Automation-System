@@ -11,6 +11,21 @@ Globals:
     Timeout: 3
 
 Resources:
+  
+  LoginTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: logintable
+      AttributeDefinitions:
+        - AttributeName: Resid
+          AttributeType: S  
+      KeySchema:
+        - AttributeName: Resid
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30
+
   RestaurantTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -58,12 +73,15 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName:
               !Ref RestaurantTable
+        - DynamoDBCrudPolicy:
+            TableName:
+              !Ref LoginTable 
       Events:
         Test:
           Type: Api
           Properties:
-              Path: /
-              Method: get
+            Path: /
+            Method: get
         ListRestaurants:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
@@ -84,6 +102,16 @@ Resources:
           Properties:
             Path: /restaurants/seating/{resid}
             Method: get
+        RestSignup:
+          Type: Api
+          Properties:
+            Path: /restaurants/signup
+            Method: post
+        RestLogin:
+          Type: Api
+          Properties:
+            Path: /restaurants/login
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
