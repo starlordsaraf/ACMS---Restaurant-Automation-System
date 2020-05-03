@@ -98,6 +98,21 @@ Resources:
           Properties:
             Path: /restaurants/menu/{resid}
             Method: get
+        AddDish:
+          Type: Api
+          Properties:
+            Path: /restaurants/menu/{resid}
+            Method: put
+        UpdateDish:
+          Type: Api
+          Properties:
+            Path: /restaurants/menu/{resid}
+            Method: post
+        DeleteDish:
+          Type: Api
+          Properties:
+            Path: /restaurants/menu/{resid}
+            Method: delete
         ReadSeating:
           Type: Api
           Properties:

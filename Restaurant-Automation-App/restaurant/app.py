@@ -14,7 +14,6 @@ logintable = ddb.Table('logintable')
 
 @app.route('/')
 def index():
-
     data = {
         "message": "Welcome to Restaurant Automation"
     }
@@ -50,6 +49,61 @@ def getseatingchart(resid):
 
 
 
+@app.route('/restaurants/menu/<string:resid>', methods=['GET'])
+def get_menu(resid):
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("DISH_DETAIL"))
+    menu = response['Items']
+    if (menu):
+        return (
+            jsonify(menu),
+            200,
+            {'Content-Type': "application/json"}
+        )
+    return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
+
+@app.route('/restaurants/menu/<string:resid>', methods=['PUT'])
+def add_dish(resid):
+    dish = request.json
+    dname = dish['dishname']
+    category = dish['category']
+    ingredients = dish['ingredients']
+    price = dish['price']
+    quantity = dish['quantity']
+    recordid = dish['did']
+    table.put_item(Item={"ResId": resid, "RecordId": recordid, "Dishname": dname, "category": category, "ingredients": ingredients,
+                         "quant": quantity, "price": price})
+    return (
+        json.dumps({"message": "Dish added"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/menu/<string:resid>', methods=['DELETE'])
+def del_dish(resid):
+    dish = request.json
+    dname = dish["dname"]
+    table.delete_item(
+        Key={"ResId":resid},
+        ConditionExpression= "#Dishname = :dname",
+        ExpressionAttributeNames={"#Dishname": "Dishname"},
+        ExpressionAttributeValues={":dname": dname}
+    )
+    return (
+        json.dumps({"message": "Dish deleted"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/menu/<string:resid>', methods=['POST'])
+def update_dish(resid):
+    dish = request.json
+    return (
+        json.dumps({"message": "Dish updated"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+
 @app.route('/restaurants/menu/<string:resid>', methods=['GET','POST'])
 def menu(resid):
     if(request.method == 'GET'):
@@ -64,6 +118,7 @@ def menu(resid):
                 )
             else:
                 return(json.dumps("Restaurant doesnt exist"),200,{'Content-Type': "application/json"})
+
 
 # {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
