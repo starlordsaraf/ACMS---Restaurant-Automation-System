@@ -1,44 +1,19 @@
 import json
 import boto3
 from flask_lambda import FlaskLambda
+from flask import jsonify
 from flask import request
+from flask import Response
+from boto3.dynamodb.conditions import Key
 # import requests
 
 app = FlaskLambda(__name__)
 ddb = boto3.resource("dynamodb")
-table = ddb.Table('restaurants')
+table = ddb.Table('restaurant-table')
+logintable = ddb.Table('logintable')
 
 @app.route('/')
 def index():
-    """Sample pure Lambda function
-
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
-
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
-
-    context: object, required
-        Lambda Context runtime methods and attributes
-
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
     data = {
         "message": "Welcome to Restaurant Automation"
     }
@@ -63,29 +38,113 @@ def put_or_list_restuarants():
         )
 
 
-@app.route('/restaurants/menu/<string:resid>', methods=['GET','POST'])
-def menu(resid):
-    if(request.method == 'GET'):
-        menu = table.get_item(Key= {"Resid":resid},
-            ProjectionExpression= "Menu")
-        if(menu):
-            return(
-                json.dumps(menu),
-                200,
-                {'Content-Type': "application/json"}
-            )
-        return(json.dumps("Restaurant doesn't exist"),200,{'Content-Type': "application/json"})
+#API to get all seats for seating chart
+@app.route('/restaurants/seating/<string:resid>', methods=['GET'])
+def getseatingchart(resid):
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"))
+    if(response['Items'] == []):
+        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"})
+    else:
+        return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
 
-    elif(request.method == 'POST'):
-        dish=request.json
-        table.update_item(
-                Key= {"Resid": resid},
-                UpdateExpression= "SET #Menu = list_append(#Menu,:dish)",
-                ExpressionAttributeNames = {"#Menu":"Menu"},
-                ExpressionAttributeValues= {":dish": [dish]}
-            )
+
+@app.route('/restaurants/menu/<string:resid>', methods=['GET'])
+def get_menu(resid):
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("DISH_DETAIL"))
+    menu = response['Items']
+    if (menu):
         return (
-            json.dumps({"message": "Menu added"}),
+            jsonify(menu),
             200,
             {'Content-Type': "application/json"}
         )
+    return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
+
+@app.route('/restaurants/menu/<string:resid>', methods=['PUT'])
+def add_dish(resid):
+    dish = request.json
+    dname = dish['dishname']
+    category = dish['category']
+    ingredients = dish['ingredients']
+    price = dish['price']
+    quantity = dish['quantity']
+    recordid = dish['did']
+    table.put_item(Item={"ResId": resid, "RecordId": recordid, "Dishname": dname, "category": category, "ingredients": ingredients,
+                         "quant": quantity, "price": price})
+    return (
+        json.dumps({"message": "Dish added"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/menu/<string:resid>', methods=['DELETE'])
+def del_dish(resid):
+    dish = request.json
+    dname = dish["dname"]
+    table.delete_item(
+        Key={"ResId":resid},
+        ConditionExpression= "#Dishname = :dname",
+        ExpressionAttributeNames={"#Dishname": "Dishname"},
+        ExpressionAttributeValues={":dname": dname}
+    )
+    return (
+        json.dumps({"message": "Dish deleted"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/menu/<string:resid>', methods=['POST'])
+def update_dish(resid):
+    dish = request.json
+    return (
+        json.dumps({"message": "Dish updated"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+# {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
+@app.route('/restaurants/signup', methods=['POST'])
+def signup():
+    req=request.get_json()
+    uname=req["Username"]
+    pwd=req["Password"]
+    resid=req["Resid"]
+
+    name=req["Resname"]
+    num=req["Resnum"]
+    addr=req["Resaddr"]
+    
+    req1=jsonify({"Resid":resid,"Username":uname,"Password":pwd})
+    req2=jsonify({"Resid":resid,"Menu":[],"Offers":[],"Seating":[],"Resname":name,"Resnum":num,"Resaddr":addr})
+
+    logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
+    table.put_item(Item={"Resid":resid,"Menu":[],"Offers":[],"Seating":[],"Resname":name,"Resnum":num,"Resaddr":addr})
+    return(
+        json.dumps({"message": "entry made"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+    
+#{"Resid":"1","Username":"PizHut","Password":"1234"}
+@app.route('/restaurants/login', methods=['POST'])
+def login():
+    req=request.get_json()
+    resid=req["Resid"]
+    uname=req["Username"]
+    pwd=req["Password"]
+    
+    res = logintable.scan()['Items']
+    for restaurants in res:
+        if(restaurants['Username']==uname):
+            chk=1
+            if restaurants['Password']==pwd:
+                return(
+                    json.dumps({"message": "login successful"}),
+                    200,
+                    {'Content-Type': "application/json"}
+                )        
+    return(
+        json.dumps({"message": "Invalid credentials!"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
