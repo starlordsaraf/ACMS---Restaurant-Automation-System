@@ -29,39 +29,40 @@ Resources:
   RestaurantTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: restaurants
+      TableName: restaurant-table
       AttributeDefinitions:
-        - AttributeName: Resid
-          AttributeType: S  
+        - AttributeName: ResId
+          AttributeType: S 
+        - AttributeName: RecordId 
+          AttributeType: S
       KeySchema:
-        - AttributeName: Resid
+        - AttributeName: ResId
           KeyType: HASH
+        - AttributeName: RecordId
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 30
       GlobalSecondaryIndexes:
         - IndexName: menuGSI
           KeySchema:
-            - AttributeName: Resid
+            - AttributeName: ResId
               KeyType: HASH
           Projection:
-            NonKeyAttributes:
-              - Menu
-            ProjectionType: INCLUDE 
+            ProjectionType: ALL
           ProvisionedThroughput:
             ReadCapacityUnits: 30
             WriteCapacityUnits: 30
         - IndexName: seatingGSI
           KeySchema:
-            - AttributeName: Resid
+            - AttributeName: ResId
               KeyType: HASH
           Projection:
-            NonKeyAttributes:
-              - Seating
-            ProjectionType: INCLUDE 
+            ProjectionType: ALL 
           ProvisionedThroughput:
             ReadCapacityUnits: 30
             WriteCapacityUnits: 30
+
 
   RestaurantFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

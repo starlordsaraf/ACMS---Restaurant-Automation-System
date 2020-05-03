@@ -9,7 +9,7 @@ from boto3.dynamodb.conditions import Key
 
 app = FlaskLambda(__name__)
 ddb = boto3.resource("dynamodb")
-table = ddb.Table('restaurants')
+table = ddb.Table('restaurant-table')
 logintable = ddb.Table('logintable')
 
 @app.route('/')
@@ -39,14 +39,14 @@ def put_or_list_restuarants():
         )
 
 
-
+#API to get all seats for seating chart
 @app.route('/restaurants/seating/<string:resid>', methods=['GET'])
 def getseatingchart(resid):
-    response = table.query(IndexName="seatingGSI",KeyConditionExpression=Key("Resid").eq(resid))
-    if(response['Items'][0]["Seating"]==[]):
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"))
+    if(response['Items'] == []):
         return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"})
     else:
-        return(jsonify(response['Items'][0]['Seating']),200, {'Content-Type': "application/json"})
+        return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
 
 
 
