@@ -48,6 +48,7 @@ def getseatingchart(resid):
         return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
 
 
+
 @app.route('/restaurants/menu/<string:resid>', methods=['GET'])
 def get_menu(resid):
     response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("DISH_DETAIL"))
@@ -101,6 +102,23 @@ def update_dish(resid):
         200,
         {'Content-Type': "application/json"}
     )
+
+
+@app.route('/restaurants/menu/<string:resid>', methods=['GET','POST'])
+def menu(resid):
+    if(request.method == 'GET'):
+        res = table.scan()['Items']
+        for restaurants in res:
+            if(restaurants['Resid']==resid):
+                menu=restaurants['Menu']
+                return(
+                    json.dumps(menu),
+                    200,
+                    {'Content-Type': "application/json"}
+                )
+            else:
+                return(json.dumps("Restaurant doesnt exist"),200,{'Content-Type': "application/json"})
+
 
 # {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
