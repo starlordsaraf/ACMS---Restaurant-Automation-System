@@ -147,6 +147,7 @@ Resources:
           Type: Api
           Properties:
             Path: /restaurants/seating/unblock/{resid}
+            Method: post
         RestDelete:
           Type: Api
           Properties:

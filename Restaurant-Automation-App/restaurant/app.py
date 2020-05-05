@@ -38,15 +38,7 @@ def put_or_list_restuarants():
         )
 
 
-#API to get all seats for seating chart
-@app.route('/restaurants/seating/<string:resid>', methods=['GET'])
-def getseatingchart(resid):
-    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"))
-    if(response['Items'] == []):
-        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"})
-    else:
-        return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
-
+#-------------------------MENU APIS---------------------------------------------------------------------------------------
 
 @app.route('/restaurants/menu/<string:resid>', methods=['GET'])
 def get_menu(resid):
@@ -147,6 +139,95 @@ def update_dish(resid):
         {'Content-Type': "application/json"}
     )
 
+
+#-------------------------------------------TABLE APIS-----------------------------------------------------------------------------
+
+@app.route('/restaurants/seating/<string:resid>', methods=['GET'])
+def getseatingchart(resid):
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"))
+    if(response['Items'] == []):
+        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"})
+    else:
+        return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
+	
+@app.route('/restaurants/seating/<string:resid>', methods=['PUT'])
+def add_table(resid):
+    seating = request.json
+    number_of_seats = seating['seats']
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    table.put_item(Item={"ResId": resid, "RecordId": recordid,"seats":number_of_seats, "table_status":"V"})
+    return (
+        json.dumps({"message": "Table added"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+
+@app.route('/restaurants/seating/<string:resid>', methods=['DELETE'])
+def del_table(resid):
+    seating = request.json
+    tid = seating["tid"]
+    recid = 'TABLE_DETAIL#T'+tid
+    table.delete_item(
+        Key={"ResId":resid,
+             "RecordId":recid}
+    )
+    return (
+        json.dumps({"message": "Table deleted"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+	
+@app.route('/restaurants/seating/block/<string:resid>', methods=['POST'])
+def block_table(resid):
+	#doesnt work
+    seating = request.json
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    response = table.update_item(
+    Key={
+        'ResId': resid,
+        'RecordId': recordid
+    },
+    UpdateExpression="set table_status = :r",
+    ExpressionAttributeValues={
+        ':r': "O"
+       
+    }
+    )
+    return (
+        json.dumps({"message": "Table "+seating['tid']+"has been blocked"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/seating/unblock/<string:resid>', methods=['POST'])
+def unblock_table(resid):
+	#doesnt work
+    seating = request.json
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    response = table.update_item(
+    Key={
+        'ResId': resid,
+        'RecordId': recordid
+    },
+    UpdateExpression="set table_status = :r",
+    ExpressionAttributeValues={
+        ':r': "V"
+       
+    }
+    )
+    return (
+        json.dumps({"message": "Table "+seating['tid']+"has been unblocked"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+
+#------------------------------------RESTAURANT LOGIN/DETAILS APIS-------------------------------------------------------------------------
+
 # {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
 def signup():
@@ -187,85 +268,6 @@ def login():
                 )        
     return(
         json.dumps({"message": "Invalid credentials!"}),
-        200,
-        {'Content-Type': "application/json"}
-    )
-
-	
-	
-@app.route('/restaurants/seating/<string:resid>', methods=['PUT'])
-def add_table(resid):
-    seating = request.json
-    number_of_seats = seating['seats']
-    recordid = seating['tid']
-    recordid="TABLE_DETAIL#T"+recordid
-    table.put_item(Item={"ResId": resid, "RecordId": recordid,"seats":number_of_seats, "status":"V"})
-    return (
-        json.dumps({"message": "Table added"}),
-        200,
-        {'Content-Type': "application/json"}
-    )
-
-
-@app.route('/restaurants/seating/<string:resid>', methods=['DELETE'])
-def del_table(resid):
-    seating = request.json
-    tid = seating["tid"]
-    recid = 'TABLE_DETAIL#T'+tid
-    table.delete_item(
-        Key={"ResId":resid,
-             "RecordId":recid}
-    )
-    return (
-        json.dumps({"message": "Table deleted"}),
-        200,
-        {'Content-Type': "application/json"}
-    )
-	
-@app.route('/restaurants/seating/block/<string:resid>', methods=['POST'])
-def block_table(resid):
-	#doesnt work
-    seating = request.json
-    recordid = seating['tid']
-    recordid="TABLE_DETAIL#T"+recordid
-    response = table.update_item(
-    Key={
-        'ResId': resid,
-        'RecordId': recordid
-    },
-    UpdateExpression="set status = :r",
-    ExpressionAttributeValues={
-        ':r': "O"
-       
-    },
-    ReturnValues="UPDATED_NEW"
-    )
-    return (
-        json.dumps({"message": "Table status:Occupied"}),
-        200,
-        {'Content-Type': "application/json"}
-    )
-
-@app.route('/restaurants/seating/unblock/<string:resid>', methods=['POST'])
-def unblock_table(resid):
-	#doesnt work
-    seating = request.json
-    recordid = seating['tid']
-    recordid="TABLE_DETAIL#T"+recordid
-    response = table.update_item(
-    Key={
-        'ResId': resid,
-        'RecordId': recordid
-    },
-    UpdateExpression="set status = :r",
-    ExpressionAttributeValues={
-        ':r': "V"
-       
-    },
-    ReturnValues="UPDATED_NEW"
-    )
-    return (
-        json.dumps({"message": "Table status:Vacant"}),
         200,
         {'Content-Type': "application/json"}
     )
