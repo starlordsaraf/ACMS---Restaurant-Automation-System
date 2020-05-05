@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-
-
 export default class Form extends Component {
   constructor(props) {
     super(props);
@@ -10,12 +8,7 @@ export default class Form extends Component {
       Dcategory: '',
       Dingredients:'',
       Dquant:'',
-      Reg_v:'',
-      Reg_nv:'',
-      Med_v:'',
-      Med_nv:'',
-      Lar_v:'',
-      Lar_nv:''
+      Price:''
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -32,19 +25,19 @@ export default class Form extends Component {
   }
   async handleSubmit(event) {
     event.preventDefault();
-    const { Dname, Dcategory, Dingredients, Dquant, Reg_v,Reg_nv, Med_v, Med_nv, Lar_v, Lar_nv } = this.state;
+    const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
     await axios.put(
       ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
-      { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':{'regular':`${Reg_v}`,'regular_nonveg':`${Reg_nv}`,'medium':`${Med_v}`,'medium_nonveg':`${Med_nv}`,'large':`${Lar_v}`,'large_nonveg':`${Lar_nv}`}}
+      { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }
 
   async handleAlternate(event) {
     event.preventDefault();
-    const { Dname, Dcategory, Dingredients, Dquant, Reg_v,Reg_nv, Med_v, Med_nv, Lar_v, Lar_nv } = this.state;
+    const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
     await axios.post(
       ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
-      { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':{'regular':`${Reg_v}`,'regular_nonveg':`${Reg_nv}`,'medium':`${Med_v}`,'medium_nonveg':`${Med_nv}`,'large':`${Lar_v}`,'large_nonveg':`${Lar_nv}`}}
+      {'dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }
 
@@ -88,46 +81,13 @@ export default class Form extends Component {
             value={this.state.Dquant}
           /><p></p>
 
-          <label style = {{width: "295px"}}> Price:</label ><label  style= {{width: "170px"}}>Veg</label><label>Non-Veg</label><p></p>
-          <label> Regular</label>
-          <input
+          <label>Price:</label>
+          <input style={{ width: "500px" }}
             type="number"
-            name="Reg_v"
+            name="Price"
             onChange={this.handleChange}
-            value={this.state.Reg_v}
-          /> &emsp; &emsp;
-          <input
-            type="number"
-            name="Reg_nv"
-            onChange={this.handleChange}
-            value={this.state.Reg_nv}
+            value={this.state.Price}
           /><p></p>
-          <label> Medium</label>
-          <input 
-            type="number"
-            name="Med_v"
-            onChange={this.handleChange}
-            value={this.state.Med_v}
-          /> &emsp; &emsp;
-          <input
-            type="number"
-            name="Med_nv"
-            onChange={this.handleChange}
-            value={this.state.Med_nv}
-          /><p></p>
-          <label> Large</label>
-          <input
-            type="number"
-            name="Lar_v"
-            onChange={this.handleChange}
-            value={this.state.Lar_v}
-          /> &emsp; &emsp;
-          <input
-            type="number"
-            name="Lar_nv"
-            onChange={this.handleChange}
-            value={this.state.Lar_nv}
-          /><p><br></br></p>
 
 
           <button name='submit' type ='submit' style = {{width: "250px"}}> ADD DISH </button> 

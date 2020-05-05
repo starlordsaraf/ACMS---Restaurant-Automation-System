@@ -1,24 +1,19 @@
 import React from 'react';
-//import Table from './menu.js';
 import axios from 'axios';
+import { JsonToTable } from "react-json-to-table";
 
-const JsonTable = require('ts-react-json-table');
 export default class menu extends React.Component {
     constructor(props){
       super(props);
       this.state={
-        tableData:[''],
+        tableData:[],
         columns: [
-    {key: 'RecordId', label: '---------DishId---------'},
-    {key: 'Dishname', label:'------Dishname------'},
-    {key: 'category', label:'------category------'},
-    {key: 'ingredients', label:'-------------------ingredients--------------------------'},
-    {key: 'quant' ,label:'--quantity--'},
-    {key: 'price.large', label: '--Prize_L--'},
-    {key: 'price.medium', label: '--Prize_M--'},
-    {key: 'price.regular', label: '--Prize_S'},
-
-],
+    {key: 'RecordId', label: 'DishId'},
+    {key: 'Dishname', label:'Dishname'},
+    {key: 'category', label:'Category'},
+    {key: 'ingredients', label:'Ingredients'},
+    {key: 'quant' ,label:'Quantity'},
+    {key: 'price', label: 'Price'}],
         del:''
       }
     this.handleChange = this.handleChange.bind(this);
@@ -50,8 +45,8 @@ export default class menu extends React.Component {
     console.log(`${del}`);
     axios.delete(
       'https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
-      { "did": `${del}`}
-    );
+      {data: {'did': `${del}`}
+    });
   }
     
     render() {        
@@ -60,8 +55,8 @@ export default class menu extends React.Component {
           <div className="menu">   
           <form onSubmit={this.handleSubmit}>       
             <br/> <h4>MENU</h4>
-            <div id="table"><JsonTable rows = {this.state.tableData} columns= {this.state.columns}/></div>
-            <h4>Enter the Dish name to be deleted:</h4>
+            <JsonToTable json={this.state.tableData} />
+            <h4>Enter the DishID to be deleted:</h4>
             <input style={{ width: "300px" }}
             type="text"
             name="del"
