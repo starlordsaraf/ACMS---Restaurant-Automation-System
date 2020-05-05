@@ -118,16 +118,13 @@ def signup():
     uname=req["Username"]
     pwd=req["Password"]
     resid=req["Resid"]
-
+    
     name=req["Resname"]
     num=req["Resnum"]
     addr=req["Resaddr"]
     
-    req1=jsonify({"Resid":resid,"Username":uname,"Password":pwd})
-    req2=jsonify({"Resid":resid,"Menu":[],"Offers":[],"Seating":[],"Resname":name,"Resnum":num,"Resaddr":addr})
-
     logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
-    table.put_item(Item={"Resid":resid,"Menu":[],"Offers":[],"Seating":[],"Resname":name,"Resnum":num,"Resaddr":addr})
+    table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr})
     return(
         json.dumps({"message": "entry made"}),
         200,
@@ -157,3 +154,69 @@ def login():
         200,
         {'Content-Type': "application/json"}
     )
+
+
+@app.route('/restaurants/update', methods=['POST'])
+def updateres():
+    req=request.get_json()
+    try:
+        resid=req["Resid"] 
+        resaddr=req["Resaddr"]
+        resnum=req["Resnum"]
+        resname=req["Resname"]
+
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': "RES_DETAIL"
+            },
+            UpdateExpression="set Resname = :r, Resaddr=:a, Resnum=:n",
+            ExpressionAttributeValues={
+                ':r': resname,
+                ':a': resaddr,
+                ':n': resnum 
+            }
+        )
+        
+        return (
+            json.dumps({"message": "Restaurant details have been updated"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    except:
+        return (
+            json.dumps({"message": "Update Failed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+@app.route('/restaurants/delete', methods=['DELETE'])
+def deleteres():
+    req=request.get_json()
+    try:
+        resid=req["Resid"]      
+        logintable.delete_item(
+            Key={
+                "Resid":resid
+            }
+        )
+        table.delete_item(
+            Key={
+                "ResId":resid,
+                "RecordId":"RES_DETAIL"
+            }
+        )
+        return (
+            json.dumps({"message": "Restaurant has been removed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    except:
+        return (
+            json.dumps({"message": "Delete Failed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+

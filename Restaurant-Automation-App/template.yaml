@@ -133,6 +133,16 @@ Resources:
           Properties:
             Path: /restaurants/login
             Method: post
+        RestDelete:
+          Type: Api
+          Properties:
+            Path: /restaurants/delete
+            Method: delete
+        RestUpdate:
+          Type: Api
+          Properties:
+            Path: /restaurants/update
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
