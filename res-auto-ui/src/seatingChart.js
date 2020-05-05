@@ -38,10 +38,42 @@ class seatingChart extends Component {
 
  render() {
     return(
-      <table>
-        {this.createTable()}
-      </table>
-    )
+	<div>
+	 <h1>MANAGE TABLES</h1>
+	  
+      <table align="centre">
+        {this.createTable()
+		}
+      </table><br/>
+	  <div>
+       
+		<br/>
+		<h3> SELECT THE NUMBER OF SEATS TO ADD A TABLE</h3>
+        <form>
+		     NUMBER OF SEATS&nbsp;
+             <select id = "myList">
+               <option value = "1">one</option>
+               <option value = "2">two</option>
+               <option value = "3">three</option>
+               <option value = "4">four</option>
+			   <option value = "5">four</option>
+			   <option value = "6">four</option>
+             </select>&nbsp;&nbsp;
+ <button >ADD TABLE </button>       
+          
+   
+        
+        
+    </form><br/>
+	<h3>SELECT A TABLE TO PERFORM THE BELOW OPERATIONS</h3>
+        <button >DELETE TABLE</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		 <button >BLOCK  TABLE</button> &nbsp;&nbsp;&nbsp;
+		  <button >UNBLOCK TABLE</button> 
+		
+	</div>
+	  </div>
+	 
+	)
   }}
   
 class Button extends React.Component {
