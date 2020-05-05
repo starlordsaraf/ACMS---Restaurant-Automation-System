@@ -48,7 +48,6 @@ def getseatingchart(resid):
         return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
 
 
-
 @app.route('/restaurants/menu/<string:resid>', methods=['GET'])
 def get_menu(resid):
     response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("DISH_DETAIL"))
@@ -61,7 +60,7 @@ def get_menu(resid):
         )
     return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
 
-@app.route('/restaurants/menu/<string:resid>', methods=['PUT'])
+@app.route('/restaurants/menu/dish/<string:resid>', methods=['PUT'])
 def add_dish(resid):
     dish = request.json
     dname = dish['dishname']
@@ -78,15 +77,14 @@ def add_dish(resid):
         {'Content-Type': "application/json"}
     )
 
-@app.route('/restaurants/menu/<string:resid>', methods=['DELETE'])
+@app.route('/restaurants/menu/dish/<string:resid>', methods=['DELETE'])
 def del_dish(resid):
     dish = request.json
-    dname = dish["dname"]
+    did = dish["did"]
+    recid = 'DISH_DETAIL#'+str(did)
     table.delete_item(
-        Key={"ResId":resid},
-        ConditionExpression= "#Dishname = :dname",
-        ExpressionAttributeNames={"#Dishname": "Dishname"},
-        ExpressionAttributeValues={":dname": dname}
+        Key={"ResId":resid,
+             "RecordId":recid}
     )
     return (
         json.dumps({"message": "Dish deleted"}),
@@ -94,31 +92,24 @@ def del_dish(resid):
         {'Content-Type': "application/json"}
     )
 
-@app.route('/restaurants/menu/<string:resid>', methods=['POST'])
+@app.route('/restaurants/menu/<string:resid>', methods=['DELETE'])
+def del_menu(resid):
+    #this will be implemented later
+    return (
+        json.dumps({"message": "Menu deleted"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/menu/dish/<string:resid>', methods=['POST'])
 def update_dish(resid):
+    #this will be implemented later
     dish = request.json
     return (
         json.dumps({"message": "Dish updated"}),
         200,
         {'Content-Type': "application/json"}
     )
-
-
-@app.route('/restaurants/menu/<string:resid>', methods=['GET','POST'])
-def menu(resid):
-    if(request.method == 'GET'):
-        res = table.scan()['Items']
-        for restaurants in res:
-            if(restaurants['Resid']==resid):
-                menu=restaurants['Menu']
-                return(
-                    json.dumps(menu),
-                    200,
-                    {'Content-Type': "application/json"}
-                )
-            else:
-                return(json.dumps("Restaurant doesnt exist"),200,{'Content-Type': "application/json"})
-
 
 # {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
