@@ -191,6 +191,85 @@ def login():
         {'Content-Type': "application/json"}
     )
 
+	
+	
+@app.route('/restaurants/seating/<string:resid>', methods=['PUT'])
+def add_table(resid):
+    seating = request.json
+    number_of_seats = seating['seats']
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    table.put_item(Item={"ResId": resid, "RecordId": recordid,"seats":number_of_seats, "status":"V"})
+    return (
+        json.dumps({"message": "Table added"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+
+@app.route('/restaurants/seating/<string:resid>', methods=['DELETE'])
+def del_table(resid):
+    seating = request.json
+    tid = seating["tid"]
+    recid = 'TABLE_DETAIL#T'+tid
+    table.delete_item(
+        Key={"ResId":resid,
+             "RecordId":recid}
+    )
+    return (
+        json.dumps({"message": "Table deleted"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+	
+@app.route('/restaurants/seating/block/<string:resid>', methods=['POST'])
+def block_table(resid):
+	#doesnt work
+    seating = request.json
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    response = table.update_item(
+    Key={
+        'ResId': resid,
+        'RecordId': recordid
+    },
+    UpdateExpression="set status = :r",
+    ExpressionAttributeValues={
+        ':r': "O"
+       
+    },
+    ReturnValues="UPDATED_NEW"
+    )
+    return (
+        json.dumps({"message": "Table status:Occupied"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/seating/unblock/<string:resid>', methods=['POST'])
+def unblock_table(resid):
+	#doesnt work
+    seating = request.json
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    response = table.update_item(
+    Key={
+        'ResId': resid,
+        'RecordId': recordid
+    },
+    UpdateExpression="set status = :r",
+    ExpressionAttributeValues={
+        ':r': "V"
+       
+    },
+    ReturnValues="UPDATED_NEW"
+    )
+    return (
+        json.dumps({"message": "Table status:Vacant"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
 
 @app.route('/restaurants/update', methods=['POST'])
 def updateres():
