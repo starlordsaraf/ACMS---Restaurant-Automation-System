@@ -113,11 +113,6 @@ Resources:
           Properties:
             Path: /restaurants/menu/dish/{resid}
             Method: delete
-        DeleteMenu:
-          Type: Api
-          Properties:
-            Path: /restaurants/menu/{resid}
-            Method: delete
         ReadSeating:
           Type: Api
           Properties:

@@ -92,19 +92,55 @@ def del_dish(resid):
         {'Content-Type': "application/json"}
     )
 
-@app.route('/restaurants/menu/<string:resid>', methods=['DELETE'])
-def del_menu(resid):
-    #this will be implemented later
-    return (
-        json.dumps({"message": "Menu deleted"}),
-        200,
-        {'Content-Type': "application/json"}
-    )
-
 @app.route('/restaurants/menu/dish/<string:resid>', methods=['POST'])
 def update_dish(resid):
-    #this will be implemented later
     dish = request.json
+    dname = dish['dishname']
+    ingredients = dish['ingredients']
+    price = dish['price']
+    quantity = dish['quantity']
+    res = table.query(
+        KeyConditionExpression=Key('ResId').eq(resid) & Key('RecordId').begins_with("DISH_DETAIL"),
+        FilterExpression="Dishname = :d",
+        ExpressionAttributeValues={
+            ':d': dname
+        },
+        ProjectionExpression="RecordId"
+    )
+    recordid = res['Items'][0]['RecordId']
+    if(quantity):
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': recordid
+            },
+            UpdateExpression="set quant = :q",
+            ExpressionAttributeValues={
+                ':q': quantity
+            }
+        )
+    if(ingredients):
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': recordid
+            },
+            UpdateExpression="set ingredients = :i",
+            ExpressionAttributeValues={
+                ':i': ingredients
+            }
+        )
+    if(price):
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': recordid
+            },
+            UpdateExpression="set price = :p",
+            ExpressionAttributeValues={
+                ':p': price
+            }
+        )
     return (
         json.dumps({"message": "Dish updated"}),
         200,
@@ -235,7 +271,6 @@ def unblock_table(resid):
     )
 
 
-
 @app.route('/restaurants/update', methods=['POST'])
 def updateres():
     req=request.get_json()
@@ -299,5 +334,4 @@ def deleteres():
             200,
             {'Content-Type': "application/json"}
         )
-
 
