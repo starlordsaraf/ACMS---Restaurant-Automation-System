@@ -13,7 +13,6 @@ code {
     monospace;
 }
 
-
 h1 {
   margin: 2.5%;
 }
@@ -38,9 +37,5 @@ label{
 input {
   display: inline-block;
   float: centre;
-}
-
-#table{
-	margin-left: 20%;
 }
 
