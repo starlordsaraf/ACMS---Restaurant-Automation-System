@@ -5,9 +5,12 @@ from flask import jsonify
 from flask import request
 from flask import Response
 from boto3.dynamodb.conditions import Key
+from flask_cors import CORS
+
 # import requests
 
 app = FlaskLambda(__name__)
+CORS(app)
 ddb = boto3.resource("dynamodb")
 table = ddb.Table('restaurant-table')
 logintable = ddb.Table('logintable')
@@ -146,7 +149,7 @@ def update_dish(resid):
 def getseatingchart(resid):
     response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"))
     if(response['Items'] == []):
-        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"})
+        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"},{"Access-Control-Allow-Origin":"*"})
     else:
         return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
 	

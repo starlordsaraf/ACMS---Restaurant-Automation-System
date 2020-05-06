@@ -62,8 +62,8 @@ export default class menu extends React.Component {
             name="del"
             onChange={this.handleChange}
             value={this.state.del}/><p></p>
-            <button name='submit' type ='submit' style = {{width: "200px"},{padding: "10px 30px"}}> MENU </button>
-            <button name='Delete' style = {{width: "200px"},{padding: "10px 30px"}} onClick={this.handleAlternate}> DELETE DISH </button> 
+            <button name='submit' type ='submit' style = {{width: '200px' , padding: '10px 30px'}}> MENU </button>
+            <button name='Delete' style = {{width: '200px',padding: '10px 30px'}} onClick={this.handleAlternate}> DELETE DISH </button> 
             </form>
           </div>
           
