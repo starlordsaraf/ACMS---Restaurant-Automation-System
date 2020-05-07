@@ -9,7 +9,10 @@ const Navigation = () => {
        <div>
           <NavLink to="/menuDisplay">Menu</NavLink> &emsp;&emsp;&emsp;
           <NavLink to="/Dish">Add/Update Dishes</NavLink>&emsp;&emsp;&emsp;
-          <NavLink to = {seating_url}>Seating Chart</NavLink>
+          <NavLink to = {seating_url}>Seating Chart</NavLink>&emsp;&emsp;&emsp;
+          <NavLink to ="/login">Login</NavLink>&emsp;&emsp;&emsp;
+          <NavLink to ="/signup">Signup</NavLink>&emsp;&emsp;&emsp;
+          
        </div>
     );
 }
