@@ -15,7 +15,6 @@ export default class SignUp extends Component {
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    //this.handleAlternate = this.handleAlternate.bind(this);
   }
   
   handleChange(event) {
@@ -29,23 +28,25 @@ export default class SignUp extends Component {
   async handleSubmit(event) {
     event.preventDefault();
     const { RName, RUname, RPwd, RAddr, RNum,RId} = this.state;
-    await axios.post(
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/signup',
-      { 'Resname': `${RName}`,'Username': `${RUname}`,'Password':`${RPwd}`,'Resaddr':`${RAddr}`,'Resnum':`${RNum}`,'Resid':`${RId}`}
-    );
     
-    console.log("Added")
+    const proxyurl = "https://cors-anywhere.herokuapp.com/";  
+    const options = {
+      url: proxyurl+'https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/signup',
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      data:{ 'Resname': `${RName}`,'Username': `${RUname}`,'Password':`${RPwd}`,'Resaddr':`${RAddr}`,'Resnum':`${RNum}`,'Resid':`${RId}`}
+    };
+    
+    axios(options)
+      .then(response => {
+        console.log(response.data['message']);
+        alert(response.data['message']);
+
+      });
   }
-  /*
-  async handleAlternate(event) {
-    event.preventDefault();
-    const { Dname, Dcategory, Dingredients, Dquant, Reg_v,Reg_nv, Med_v, Med_nv, Lar_v, Lar_nv } = this.state;
-    await axios.post(
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
-      { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':{'regular':`${Reg_v}`,'regular_nonveg':`${Reg_nv}`,'medium':`${Med_v}`,'medium_nonveg':`${Med_nv}`,'large':`${Lar_v}`,'large_nonveg':`${Lar_nv}`}}
-    );
-  }
-*/
   
   render() {
     return (

@@ -12,7 +12,6 @@ export default class Login extends Component {
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    //this.handleAlternate = this.handleAlternate.bind(this);
   }
   
   handleChange(event) {
@@ -23,24 +22,34 @@ export default class Login extends Component {
     });
     console.log(this.state);
   }
+
   async handleSubmit(event) {
     event.preventDefault();
+    console.log('here')
     const {  RUname, RPwd, RId} = this.state;
-    await axios.post(
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/login',
-      { 'Username': `${RUname}`,'Password':`${RPwd}`,'Resid':`${RId}`}
-    );
+    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const options = {
+      url: proxyurl+'https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/login',
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      data:{ 'Username': `${RUname}`,'Password':`${RPwd}`,'Resid':`${RId}`}
+    };
+    console.log('here again')
+    axios(options)
+      .then(response => {
+        if ('resid' in response.data){
+          var rid=response.data['resid'];
+          sessionStorage.setItem("resid",rid );
+        }
+        console.log(response.data['message']);
+        alert(response.data['message']);
+      });
+
   }
-  /*
-  async handleAlternate(event) {
-    event.preventDefault();
-    const { Dname, Dcategory, Dingredients, Dquant, Reg_v,Reg_nv, Med_v, Med_nv, Lar_v, Lar_nv } = this.state;
-    await axios.post(
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
-      { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':{'regular':`${Reg_v}`,'regular_nonveg':`${Reg_nv}`,'medium':`${Med_v}`,'medium_nonveg':`${Med_nv}`,'large':`${Lar_v}`,'large_nonveg':`${Lar_nv}`}}
-    );
-  }
-*/
+  
   
   render() {
     return (

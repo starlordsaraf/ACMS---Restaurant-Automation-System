@@ -231,7 +231,6 @@ def unblock_table(resid):
 
 #------------------------------------RESTAURANT LOGIN/DETAILS APIS-------------------------------------------------------------------------
 
-# {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
 def signup():
     req=request.get_json()
@@ -244,7 +243,8 @@ def signup():
     addr=req["Resaddr"]
     
     logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
-    table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr})
+    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr})
+    #return(res)
     return(
         json.dumps({"message": "entry made"}),
         200,
@@ -255,7 +255,7 @@ def signup():
 @app.route('/restaurants/login', methods=['POST'])
 def login():
     req=request.get_json()
-    resid=req["Resid"]
+    #resid=req["Resid"]
     uname=req["Username"]
     pwd=req["Password"]
     
@@ -264,8 +264,9 @@ def login():
         if(restaurants['Username']==uname):
             chk=1
             if restaurants['Password']==pwd:
+                rid=restaurants['Resid']
                 return(
-                    json.dumps({"message": "login successful"}),
+                    json.dumps({"message": "login successful","resid":rid}),
                     200,
                     {'Content-Type': "application/json"}
                 )        
@@ -274,6 +275,7 @@ def login():
         200,
         {'Content-Type': "application/json"}
     )
+
 
 
 @app.route('/restaurants/update', methods=['POST'])

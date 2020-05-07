@@ -18,7 +18,8 @@ class seatingChart extends Component {
 
    componentDidMount(){
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    //var username = sessionStorage.getItem("resId")   --use after login is done
+    var username = sessionStorage.getItem("resid")   //use after login is done
+    console.log(username);
     fetch(proxyurl+"https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/R1",{    //change to resid
         method: 'get'
     }).then((Response)=>Response.json()).
