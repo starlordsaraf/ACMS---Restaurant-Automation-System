@@ -113,11 +113,6 @@ Resources:
           Properties:
             Path: /restaurants/menu/dish/{resid}
             Method: delete
-        DeleteMenu:
-          Type: Api
-          Properties:
-            Path: /restaurants/menu/{resid}
-            Method: delete
         ReadSeating:
           Type: Api
           Properties:
@@ -132,6 +127,36 @@ Resources:
           Type: Api
           Properties:
             Path: /restaurants/login
+            Method: post
+        AddTable:
+          Type: Api
+          Properties:
+            Path: /restaurants/seating/{resid}
+            Method: put
+        DeleteTable:
+          Type: Api
+          Properties:
+            Path: /restaurants/seating/{resid}
+            Method: delete
+        BlockTable:
+          Type: Api
+          Properties:
+            Path: /restaurants/seating/block/{resid}
+            Method: post
+        UnblockTable:
+          Type: Api
+          Properties:
+            Path: /restaurants/seating/unblock/{resid}
+            Method: post
+        RestDelete:
+          Type: Api
+          Properties:
+            Path: /restaurants/delete
+            Method: delete
+        RestUpdate:
+          Type: Api
+          Properties:
+            Path: /restaurants/update
             Method: post
 
 Outputs:

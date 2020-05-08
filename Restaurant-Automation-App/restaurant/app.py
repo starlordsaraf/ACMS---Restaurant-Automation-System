@@ -5,9 +5,12 @@ from flask import jsonify
 from flask import request
 from flask import Response
 from boto3.dynamodb.conditions import Key
+from flask_cors import CORS
+
 # import requests
 
 app = FlaskLambda(__name__)
+CORS(app)
 ddb = boto3.resource("dynamodb")
 table = ddb.Table('restaurant-table')
 logintable = ddb.Table('logintable')
@@ -38,15 +41,7 @@ def put_or_list_restuarants():
         )
 
 
-#API to get all seats for seating chart
-@app.route('/restaurants/seating/<string:resid>', methods=['GET'])
-def getseatingchart(resid):
-    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"))
-    if(response['Items'] == []):
-        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"})
-    else:
-        return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
-
+#-------------------------MENU APIS---------------------------------------------------------------------------------------
 
 @app.route('/restaurants/menu/<string:resid>', methods=['GET'])
 def get_menu(resid):
@@ -92,42 +87,164 @@ def del_dish(resid):
         {'Content-Type': "application/json"}
     )
 
-@app.route('/restaurants/menu/<string:resid>', methods=['DELETE'])
-def del_menu(resid):
-    #this will be implemented later
-    return (
-        json.dumps({"message": "Menu deleted"}),
-        200,
-        {'Content-Type': "application/json"}
-    )
-
 @app.route('/restaurants/menu/dish/<string:resid>', methods=['POST'])
 def update_dish(resid):
-    #this will be implemented later
     dish = request.json
+    dname = dish['dishname']
+    ingredients = dish['ingredients']
+    price = dish['price']
+    quantity = dish['quantity']
+    res = table.query(
+        KeyConditionExpression=Key('ResId').eq(resid) & Key('RecordId').begins_with("DISH_DETAIL"),
+        FilterExpression="Dishname = :d",
+        ExpressionAttributeValues={
+            ':d': dname
+        },
+        ProjectionExpression="RecordId"
+    )
+    recordid = res['Items'][0]['RecordId']
+    if(quantity):
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': recordid
+            },
+            UpdateExpression="set quant = :q",
+            ExpressionAttributeValues={
+                ':q': quantity
+            }
+        )
+    if(ingredients):
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': recordid
+            },
+            UpdateExpression="set ingredients = :i",
+            ExpressionAttributeValues={
+                ':i': ingredients
+            }
+        )
+    if(price):
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': recordid
+            },
+            UpdateExpression="set price = :p",
+            ExpressionAttributeValues={
+                ':p': price
+            }
+        )
     return (
         json.dumps({"message": "Dish updated"}),
         200,
         {'Content-Type': "application/json"}
     )
 
-# {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
+
+#-------------------------------------------TABLE APIS-----------------------------------------------------------------------------
+
+@app.route('/restaurants/seating/<string:resid>', methods=['GET'])
+def getseatingchart(resid):
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"))
+    if(response['Items'] == []):
+        return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"},{"Access-Control-Allow-Origin":"*"})
+    else:
+        return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
+	
+@app.route('/restaurants/seating/<string:resid>', methods=['PUT'])
+def add_table(resid):
+    seating = request.json
+    number_of_seats = seating['seats']
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    table.put_item(Item={"ResId": resid, "RecordId": recordid,"seats":number_of_seats, "table_status":"V"})
+    return (
+        json.dumps({"message": "Table added"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+
+@app.route('/restaurants/seating/<string:resid>', methods=['DELETE'])
+def del_table(resid):
+    seating = request.json
+    tid = seating["tid"]
+    recid = 'TABLE_DETAIL#T'+tid
+    table.delete_item(
+        Key={"ResId":resid,
+             "RecordId":recid}
+    )
+    return (
+        json.dumps({"message": "Table deleted"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+	
+@app.route('/restaurants/seating/block/<string:resid>', methods=['POST'])
+def block_table(resid):
+	#doesnt work
+    seating = request.json
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    response = table.update_item(
+    Key={
+        'ResId': resid,
+        'RecordId': recordid
+    },
+    UpdateExpression="set table_status = :r",
+    ExpressionAttributeValues={
+        ':r': "O"
+       
+    }
+    )
+    return (
+        json.dumps({"message": "Table "+seating['tid']+"has been blocked"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+@app.route('/restaurants/seating/unblock/<string:resid>', methods=['POST'])
+def unblock_table(resid):
+	#doesnt work
+    seating = request.json
+    recordid = seating['tid']
+    recordid="TABLE_DETAIL#T"+recordid
+    response = table.update_item(
+    Key={
+        'ResId': resid,
+        'RecordId': recordid
+    },
+    UpdateExpression="set table_status = :r",
+    ExpressionAttributeValues={
+        ':r': "V"
+       
+    }
+    )
+    return (
+        json.dumps({"message": "Table "+seating['tid']+"has been unblocked"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+
+#------------------------------------RESTAURANT LOGIN/DETAILS APIS-------------------------------------------------------------------------
+
 @app.route('/restaurants/signup', methods=['POST'])
 def signup():
     req=request.get_json()
     uname=req["Username"]
     pwd=req["Password"]
     resid=req["Resid"]
-
+    
     name=req["Resname"]
     num=req["Resnum"]
     addr=req["Resaddr"]
     
-    req1=jsonify({"Resid":resid,"Username":uname,"Password":pwd})
-    req2=jsonify({"Resid":resid,"Menu":[],"Offers":[],"Seating":[],"Resname":name,"Resnum":num,"Resaddr":addr})
-
     logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
-    table.put_item(Item={"Resid":resid,"Menu":[],"Offers":[],"Seating":[],"Resname":name,"Resnum":num,"Resaddr":addr})
+    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr})
+    #return(res)
     return(
         json.dumps({"message": "entry made"}),
         200,
@@ -138,7 +255,7 @@ def signup():
 @app.route('/restaurants/login', methods=['POST'])
 def login():
     req=request.get_json()
-    resid=req["Resid"]
+    #resid=req["Resid"]
     uname=req["Username"]
     pwd=req["Password"]
     
@@ -147,8 +264,9 @@ def login():
         if(restaurants['Username']==uname):
             chk=1
             if restaurants['Password']==pwd:
+                rid=restaurants['Resid']
                 return(
-                    json.dumps({"message": "login successful"}),
+                    json.dumps({"message": "login successful","resid":rid}),
                     200,
                     {'Content-Type': "application/json"}
                 )        
@@ -157,3 +275,70 @@ def login():
         200,
         {'Content-Type': "application/json"}
     )
+
+
+
+@app.route('/restaurants/update', methods=['POST'])
+def updateres():
+    req=request.get_json()
+    try:
+        resid=req["Resid"] 
+        resaddr=req["Resaddr"]
+        resnum=req["Resnum"]
+        resname=req["Resname"]
+
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': "RES_DETAIL"
+            },
+            UpdateExpression="set Resname = :r, Resaddr=:a, Resnum=:n",
+            ExpressionAttributeValues={
+                ':r': resname,
+                ':a': resaddr,
+                ':n': resnum 
+            }
+        )
+        
+        return (
+            json.dumps({"message": "Restaurant details have been updated"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    except:
+        return (
+            json.dumps({"message": "Update Failed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+@app.route('/restaurants/delete', methods=['DELETE'])
+def deleteres():
+    req=request.get_json()
+    try:
+        resid=req["Resid"]      
+        logintable.delete_item(
+            Key={
+                "Resid":resid
+            }
+        )
+        table.delete_item(
+            Key={
+                "ResId":resid,
+                "RecordId":"RES_DETAIL"
+            }
+        )
+        return (
+            json.dumps({"message": "Restaurant has been removed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    except:
+        return (
+            json.dumps({"message": "Delete Failed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
