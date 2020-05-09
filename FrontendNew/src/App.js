@@ -10,6 +10,10 @@ import Register from './components/Register'
 import Form from './components/Form.js';
 import menu from './components/table.js';
 import seatingChart from './components/seatingChart.js';
+import addOffer from './components/addOffer.js';
+
+import Customer from './customer/customer.js';
+import CustomerHome from './customer/custhome.js';
 
 
 class App extends Component {
@@ -26,6 +30,11 @@ class App extends Component {
             <Route path="/menuDisplay" component={menu} exact/>
             <Route path="/Dish" component={Form}/>
             <Route path="/seatingchart/:resId" component={seatingChart} />
+            <Route path="/addoffer" component={addOffer} />
+
+            <Route path="/customer" component={Customer} />
+            
+            <Route path="/custhome" component={CustomerHome} />
           </div>
         </div>
       </Router>

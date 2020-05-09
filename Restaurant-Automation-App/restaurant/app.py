@@ -231,6 +231,7 @@ def unblock_table(resid):
 
 #------------------------------------RESTAURANT LOGIN/DETAILS APIS-------------------------------------------------------------------------
 
+# {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
 def signup():
     req=request.get_json()
@@ -275,7 +276,6 @@ def login():
         200,
         {'Content-Type': "application/json"}
     )
-
 
 
 @app.route('/restaurants/update', methods=['POST'])
@@ -341,4 +341,18 @@ def deleteres():
             200,
             {'Content-Type': "application/json"}
         )
-
+#{"Resid":"2","OfferName":"FamilyFun","OfferDes":"Rs.400 off on bill amounts for 5 or more people!","OfferExp":"20/12/20"}
+@app.route('/restaurants/offer', methods=['POST'])
+def restoffers():
+    req=request.get_json()
+    oname=req['OfferName']
+    odes=req['OfferDes']
+    odate=req['OfferExp']
+    resid=req['Resid']
+    res=table.put_item(Item={"ResId":resid,"RecordId":"OFFER_DETAIL","OfferName":oname,"OfferDesc":odes,"OfferExp":odate})
+    #return res
+    return (
+            json.dumps({'message':'Offer added'}),
+            200,
+            {'Content-Type': "application/json"}
+        )

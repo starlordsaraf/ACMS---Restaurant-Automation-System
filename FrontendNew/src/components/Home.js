@@ -10,8 +10,10 @@ const Home = () => {
           <NavLink to="/menuDisplay">Menu</NavLink> &emsp;&emsp;&emsp;
           <NavLink to="/Dish">Add/Update Dishes</NavLink>&emsp;&emsp;&emsp;
           <NavLink to = {seating_url}>Seating Chart</NavLink>&emsp;&emsp;&emsp;
+          <NavLink to = "/addoffer">Add offers</NavLink>&emsp;&emsp;&emsp;
           <br/> <br/>
-          <h1> -----------Your Offfers-----------</h1>           
+          <h1> -----------Your Offfers-----------</h1>    
+                 
        </div>
 
        

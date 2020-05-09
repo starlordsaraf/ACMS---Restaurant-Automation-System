@@ -24,7 +24,13 @@ class Landing extends Component {
             Register
           </Link>
         </li>
-      </ul>
+      <li className="nav-item">
+        <Link to="/customer" className="nav-link">
+          Customer
+        </Link>
+      </li>
+    </ul>
+    
     )
 
     const userLink = (
