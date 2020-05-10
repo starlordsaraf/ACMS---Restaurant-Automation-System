@@ -1,13 +1,21 @@
 import json
 import boto3
+import requests
+import decimal
 from flask_lambda import FlaskLambda
 from flask import jsonify
 from flask import request
 from flask import Response
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key,Attr
 from flask_cors import CORS
 
 # import requests
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super(DecimalEncoder, self).default(o)
 
 app = FlaskLambda(__name__)
 CORS(app)
@@ -156,7 +164,7 @@ def getseatingchart(resid):
     if(response['Items'] == []):
         return(json.dumps("Seating Chart not updated"),200,{'Content-Type': "application/json"},{"Access-Control-Allow-Origin":"*"})
     else:
-        return(jsonify(response['Items']),200, {'Content-Type': "application/json"})
+        return(json.dumps(response['Items'],cls=DecimalEncoder),200, {'Content-Type': "application/json"})
 	
 @app.route('/restaurants/seating/<string:resid>', methods=['PUT'])
 def add_table(resid):
@@ -189,7 +197,6 @@ def del_table(resid):
 	
 @app.route('/restaurants/seating/block/<string:resid>', methods=['POST'])
 def block_table(resid):
-	#doesnt work
     seating = request.json
     recordid = seating['tid']
     recordid="TABLE_DETAIL#T"+recordid
@@ -212,7 +219,6 @@ def block_table(resid):
 
 @app.route('/restaurants/seating/unblock/<string:resid>', methods=['POST'])
 def unblock_table(resid):
-	#doesnt work
     seating = request.json
     recordid = seating['tid']
     recordid="TABLE_DETAIL#T"+recordid
@@ -370,4 +376,22 @@ def restoffers():
 #--------------------------------------------CUSTOMER SIDE APIS------------------------------------------------------------------
 #################################################################################################################################
 
+
+#API to allocate Table
+@app.route('/customer/allocatetable', methods=['POST'])
+def allocate_table():
+    req = request.get_json()
+    members = req['members']
+    resid = req['resid']
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"), FilterExpression=Attr('seats').gte(members) & Attr('seats').lte(members+2) & Attr('table_status').eq('V'))
+    print(response['Items'])
+    if(response['Items']==[]):
+        return(json.dumps({"message":"No table is available for the requested number"}),200,{'Content-Type': "application/json"})
+    else:
+        available = sorted(response['Items'], key= lambda x: x['seats'] )
+        table_no = available[0]["RecordId"].split('#')[1][1:]
+        print(table_no)
+        data = {"tid":table_no}
+        requests.post("https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/block/"+resid,json=data)
+        return(json.dumps({"message":"Your Table Number: "+table_no}),200,{'Content-Type': "application/json"})
 

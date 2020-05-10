@@ -163,6 +163,11 @@ Resources:
           Properties:
             Path: /restaurants/offer
             Method: post
+        AllocateTable:
+          Type: Api
+          Properties:
+            Path: /customer/allocatetable
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
