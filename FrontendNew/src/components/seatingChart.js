@@ -32,7 +32,7 @@ class seatingChart extends Component {
 
     setTimeout(function(){
       window.location.reload();
-    },20000)
+    },3600000)   //change to 20000 secs during finalization
 
   }
 
