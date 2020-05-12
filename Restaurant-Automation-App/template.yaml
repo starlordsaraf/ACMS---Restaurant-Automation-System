@@ -147,6 +147,7 @@ Resources:
           Type: Api
           Properties:
             Path: /restaurants/seating/unblock/{resid}
+            Method: post
         RestDelete:
           Type: Api
           Properties:
@@ -156,6 +157,26 @@ Resources:
           Type: Api
           Properties:
             Path: /restaurants/update
+            Method: post
+        RestOffers:
+          Type: Api
+          Properties:
+            Path: /restaurants/offer
+            Method: post
+        AllocateTable:
+          Type: Api
+          Properties:
+            Path: /customer/allocatetable
+            Method: post
+        AddOrder:
+          Type: Api
+          Properties:
+            Path: /customer/order/{resid}
+            Method: post
+        GetOrder:
+          Type: Api
+          Properties:
+            Path: /customer/getorder/{resid}
             Method: post
 
 Outputs:
