@@ -32,8 +32,7 @@ class App extends Component {
             <Route path="/seatingchart/:resId" component={seatingChart} />
             <Route path="/addoffer" component={addOffer} />
 
-            <Route path="/customer" component={Customer} />
-            
+            <Route path="/customer" component={Customer} />            
             <Route path="/custhome" component={CustomerHome} />
           </div>
         </div>

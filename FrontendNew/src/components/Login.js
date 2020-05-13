@@ -8,8 +8,7 @@ export default class Login extends Component {
     super(props);
     this.state = {
       RUname:'',
-      RPwd:'',
-      RId:''
+      RPwd:''
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -28,16 +27,16 @@ export default class Login extends Component {
     event.preventDefault();
 
     console.log('here')
-    const {  RUname, RPwd, RId} = this.state;
+    const {  RUname, RPwd} = this.state;
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     const options = {
-      url: proxyurl+'https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/login',
+      url: proxyurl+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/login',
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json;charset=UTF-8'
       },
-      data:{ 'Username': `${RUname}`,'Password':`${RPwd}`,'Resid':`${RId}`}
+      data:{ 'Username': `${RUname}`,'Password':`${RPwd}`}
     };
     console.log('here again')
     axios(options)
@@ -85,19 +84,6 @@ export default class Login extends Component {
                     placeholder="Enter password"
                     onChange={this.handleChange}
                     value={this.state.RPwd}               
-                 />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="id">Restaurant ID</label>
-                <input
-
-                    type="text"
-                    name="RId"
-                    className="form-control"
-                    placeholder="Enter Res ID"
-                    onChange={this.handleChange}
-                    value={this.state.RId}               
                  />
               </div>
 

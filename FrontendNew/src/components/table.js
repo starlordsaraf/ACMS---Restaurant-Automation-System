@@ -24,7 +24,7 @@ export default class menu extends React.Component {
     async handleSubmit(event) {
     event.preventDefault();
     axios.get(
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/R1'
+      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/R1'
     )
          .then(response => {
         this.setState({
@@ -44,7 +44,7 @@ export default class menu extends React.Component {
     const {del} = this.state;
     console.log(`${del}`);
     axios.delete(
-      'https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
+      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
       {data: {'did': `${del}`}
     });
   }

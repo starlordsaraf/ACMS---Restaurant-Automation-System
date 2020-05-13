@@ -27,7 +27,7 @@ export default class Form extends Component {
     event.preventDefault();
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
     await axios.put(
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
+      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
       { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }
@@ -36,7 +36,7 @@ export default class Form extends Component {
     event.preventDefault();
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
     await axios.post(
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
+      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
       {'dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }

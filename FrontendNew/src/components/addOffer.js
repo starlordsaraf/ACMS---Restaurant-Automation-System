@@ -33,7 +33,7 @@ export default class Login extends Component {
        
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     const options = {
-      url: proxyurl+'https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/offer',
+      url: proxyurl+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/offer',
       method: 'POST',
       headers: {
         'Accept': 'application/json',

@@ -20,7 +20,7 @@ class seatingChart extends Component {
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     var username = sessionStorage.getItem("resid")   //use after login is done
     console.log(username);
-    fetch(proxyurl+"https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/R1",{    //change to resid
+    fetch(proxyurl+"https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/R1",{    //change to resid
         method: 'get'
     }).then((Response)=>Response.json()).
     then((findresponse)=>{
@@ -60,7 +60,7 @@ class seatingChart extends Component {
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     console.log(document.getElementById("seats").value.toString())
     //var username = sessionStorage.getItem("resId")   --use after login is done
-    axios.put(proxyurl+"https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/R1",{
+    axios.put(proxyurl+"https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/R1",{
       "tid": (parseInt(this.state.last_table)+1).toString(),
       "seats": document.getElementById("seats").value.toString()
     });
@@ -69,7 +69,7 @@ class seatingChart extends Component {
   deletetable(){
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     //var username = sessionStorage.getItem("resId")   --use after login is done
-    axios.delete(proxyurl+"https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/R1",{data: {
+    axios.delete(proxyurl+"https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/R1",{data: {
       "tid": document.getElementById("tid").value
     }});
   }
@@ -124,12 +124,12 @@ class Button extends React.Component {
       button:!this.state.button
     })
     if(this.state.button==true){
-      axios.post(proxyurl+"https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/block/R1",{
+      axios.post(proxyurl+"https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/block/R1",{
         "tid":this.props.buttonprops.split("\n")[0].substring(1,)
       })
     }
     if(this.state.button==false){
-      axios.post(proxyurl+"https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/unblock/R1",{
+      axios.post(proxyurl+"https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/unblock/R1",{
         "tid":this.props.buttonprops.split("\n")[0].substring(1,)
       })
     }
