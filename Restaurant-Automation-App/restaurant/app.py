@@ -395,3 +395,52 @@ def allocate_table():
         requests.post("https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/block/"+resid,json=data)
         return(json.dumps({"message":"Your Table Number: "+table_no}),200,{'Content-Type': "application/json"})
 
+#API to put orders in the database
+@app.route('/customer/order/<string:resid>', methods=['POST'])
+def place_order(resid):
+    req = request.json
+    i=1
+    with table.batch_writer() as batch:
+        for order in req:
+            dname = order['Dishname']
+            quantity = order['quantity']
+            price = order['price']
+            custid = order['custid']
+            tableid = order['tableid']
+            available = order['available']
+            orderid = "O1"  #this needs to be changed to auto increment
+            dishid = "D"+str(i)
+            recordid = "ORDER_DETAIL#"+custid+"#"+tableid+"#"+orderid+"#"+dishid
+            batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price})
+            new_quant = int(available)-int(quantity)
+            data = {'dishname':dname,'ingredients':'','quantity':str(new_quant),'price':''}
+            requests.post("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/" + resid, json=data)
+            i+=1
+    return (
+        json.dumps({"message": "Order received"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+
+#API to fetch order
+@app.route('/customer/getorder/<string:resid>', methods=['POST'])
+def get_order(resid):
+    req = request.json
+    custid = req['custid']
+    recordid = "ORDER_DETAIL#"+custid
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with(recordid))
+    order = response['Items']
+    if (order):
+        return (
+            jsonify(order),
+            200,
+            {'Content-Type': "application/json"}
+        )
+    return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
+
+
+
+
+
+
+

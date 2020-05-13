@@ -168,6 +168,16 @@ Resources:
           Properties:
             Path: /customer/allocatetable
             Method: post
+        AddOrder:
+          Type: Api
+          Properties:
+            Path: /customer/order/{resid}
+            Method: post
+        GetOrder:
+          Type: Api
+          Properties:
+            Path: /customer/getorder/{resid}
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
