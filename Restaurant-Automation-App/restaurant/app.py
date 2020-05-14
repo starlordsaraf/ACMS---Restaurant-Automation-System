@@ -375,14 +375,43 @@ def restoffers():
 #################################################################################################################################
 #--------------------------------------------CUSTOMER SIDE APIS------------------------------------------------------------------
 #################################################################################################################################
+#API to fetch the resid given the resname
+@app.route('/customer/fetchid', methods=['POST'])
+def fetchid():
+    req=request.get_json()
+    resname=req['ResName']
+    resbranch=req['ResBranch'] 
 
+    try:
+        response = table.query( IndexName='resGSI',KeyConditionExpression=Key("Resname").eq(resname) & Key("Resbranch").eq(resbranch)  )
+    except:
+        return (
+                json.dumps({'message':'Wrong query!'}),
+                200,
+                {'Content-Type': "application/json"}
+            )
+ 
+    if(response['Items']==[]):  
+        responseData={"message":"NO SUCH RESTAURANT"}    
+    else:
+        resid=response["Items"][0]["ResId"]
+        #responseData=response["Items"]
+        #responseData={"message":"Fetch ID successful","resid":resid}
+        count=response["Items"][0]["Rescount"]          
+        responseData={"message":"Fetch ID successful","resid":resid,"rescount":str(count)}
+    return (
+            json.dumps(responseData),
+            200,
+            {'Content-Type': "application/json"}
+        )
 
 #API to allocate Table
 @app.route('/customer/allocatetable', methods=['POST'])
 def allocate_table():
     req = request.get_json()
-    members = req['members']
+    members = int(req['members'])
     resid = req['resid']
+    count=int(req['rescount']) + 1
     response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("TABLE_DETAIL"), FilterExpression=Attr('seats').gte(members) & Attr('seats').lte(members+2) & Attr('table_status').eq('V'))
     print(response['Items'])
     if(response['Items']==[]):
@@ -392,14 +421,30 @@ def allocate_table():
         table_no = available[0]["RecordId"].split('#')[1][1:]
         print(table_no)
         data = {"tid":table_no}
-        requests.post("https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/block/"+resid,json=data)
-        return(json.dumps({"message":"Your Table Number: "+table_no}),200,{'Content-Type': "application/json"})
+        requests.post("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/seating/block/"+resid,json=data)
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': "RES_DETAIL"
+            },
+            UpdateExpression="set Rescount = :q",
+            ExpressionAttributeValues={
+                ':q': count
+            }
+        )
+        
+        
+        return(json.dumps({"message":"Table allocated!","table":table_no,"rescount":count},cls=DecimalEncoder),200,{'Content-Type': "application/json"})
+        
+        #return(json.dumps({"message":"Your Table Number: "+table_no,"rescount":str(count)}),200,{'Content-Type': "application/json"})
+
 
 #API to put orders in the database
 @app.route('/customer/order/<string:resid>', methods=['POST'])
 def place_order(resid):
     req = request.json
     i=1
+    orderid = "O1"  # this needs to be changed to auto increment
     with table.batch_writer() as batch:
         for order in req:
             dname = order['Dishname']
@@ -408,7 +453,6 @@ def place_order(resid):
             custid = order['custid']
             tableid = order['tableid']
             available = order['available']
-            orderid = "O1"  #this needs to be changed to auto increment
             dishid = "D"+str(i)
             recordid = "ORDER_DETAIL#"+custid+"#"+tableid+"#"+orderid+"#"+dishid
             batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price})
@@ -417,7 +461,7 @@ def place_order(resid):
             requests.post("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/" + resid, json=data)
             i+=1
     return (
-        json.dumps({"message": "Order received"}),
+        json.dumps({"message": "Order received","orderid":orderid}),
         200,
         {'Content-Type': "application/json"}
     )
@@ -428,9 +472,18 @@ def get_order(resid):
     req = request.json
     custid = req['custid']
     recordid = "ORDER_DETAIL#"+custid
-    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with(recordid))
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with(recordid),
+                           ProjectionExpression="Dishname,quant,price")
     order = response['Items']
+    bill = {}
+    total = 0
     if (order):
+        for i in order:
+            total = total + (int(i["quant"]) * int(i["price"]))
+        bill["Dishname"] = ""
+        bill["quant"] = ""
+        bill["price"] = str(total)
+        order.append(bill)
         return (
             jsonify(order),
             200,
