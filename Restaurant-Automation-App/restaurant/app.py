@@ -444,6 +444,7 @@ def allocate_table():
 def place_order(resid):
     req = request.json
     i=1
+    orderid = "O1"  # this needs to be changed to auto increment
     with table.batch_writer() as batch:
         for order in req:
             dname = order['Dishname']
@@ -452,7 +453,6 @@ def place_order(resid):
             custid = order['custid']
             tableid = order['tableid']
             available = order['available']
-            orderid = "O1"  #this needs to be changed to auto increment
             dishid = "D"+str(i)
             recordid = "ORDER_DETAIL#"+custid+"#"+tableid+"#"+orderid+"#"+dishid
             batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price})
@@ -461,7 +461,7 @@ def place_order(resid):
             requests.post("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/" + resid, json=data)
             i+=1
     return (
-        json.dumps({"message": "Order received"}),
+        json.dumps({"message": "Order received","orderid":orderid}),
         200,
         {'Content-Type': "application/json"}
     )
@@ -472,9 +472,18 @@ def get_order(resid):
     req = request.json
     custid = req['custid']
     recordid = "ORDER_DETAIL#"+custid
-    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with(recordid))
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with(recordid),
+                           ProjectionExpression="Dishname,quant,price")
     order = response['Items']
+    bill = {}
+    total = 0
     if (order):
+        for i in order:
+            total = total + (int(i["quant"]) * int(i["price"]))
+        bill["Dishname"] = ""
+        bill["quant"] = ""
+        bill["price"] = str(total)
+        order.append(bill)
         return (
             jsonify(order),
             200,
