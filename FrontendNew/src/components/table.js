@@ -6,7 +6,7 @@ export default class menu extends React.Component {
     constructor(props){
       super(props);
       this.state={
-        tableData:[''],
+        tableData:[],
         columns: [
     {key: 'RecordId', label: 'DishId'},
     {key: 'Dishname', label:'Dishname'},
@@ -18,20 +18,19 @@ export default class menu extends React.Component {
       }
     this.handleChange = this.handleChange.bind(this);
     this.handleAlternate = this.handleAlternate.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    async componentDidMount() {
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    var resid1 = "R"+sessionStorage.getItem("resid")   //use after login is done
-    console.log(resid1);
-    fetch(proxyurl+"https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/resid1",{    //change to resid
-        method: 'get'
-    }).then((Response)=>Response.json()).
-    then((findresponse)=>{
-        this.setState({tableData: findresponse})
-        console.log(this.state.tableData);
-
-    })
+    async handleSubmit(event) {
+    event.preventDefault();
+    axios.get(
+      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/R1'
+    )
+         .then(response => {
+        this.setState({
+          tableData: response.data
+        });
+      });
   }
   handleChange(event) {
     const inputValue = event.target.value;
@@ -40,14 +39,12 @@ export default class menu extends React.Component {
       [stateField]: inputValue,
     });
   }
-
   async handleAlternate(event) {
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    var resid1 = "R"+sessionStorage.getItem("resid") 
+    event.preventDefault();
     const {del} = this.state;
     console.log(`${del}`);
-    axios.delete(proxyurl+
-      'https://utf02dq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/resid1',
+    axios.delete(
+      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
       {data: {'did': `${del}`}
     });
   }
@@ -55,16 +52,19 @@ export default class menu extends React.Component {
     render() {        
         
         return (
-          <div className="menu">       
+          <div className="menu">   
+          <form onSubmit={this.handleSubmit}>       
             <br/> <h4>MENU</h4>
-            <JsonToTable json={this.state.tableData}/>
+            <JsonToTable json={this.state.tableData} />
             <h4>Enter the DishID to be deleted:</h4>
             <input style={{ width: "300px" }}
             type="text"
             name="del"
             onChange={this.handleChange}
             value={this.state.del}/><p></p>
+            <button name='submit' type ='submit' style = {{width: '200px' , padding: '10px 30px'}}> MENU </button>
             <button name='Delete' style = {{width: '200px',padding: '10px 30px'}} onClick={this.handleAlternate}> DELETE DISH </button> 
+            </form>
           </div>
           
         );
