@@ -24,21 +24,19 @@ export default class Form extends Component {
     console.log(this.state);
   }
   async handleSubmit(event) {
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    var resid1 = "R"+sessionStorage.getItem("resid") 
+    event.preventDefault();
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
-    await axios.put(proxyurl+
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/resid1',
+    await axios.put(
+      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
       { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }
 
   async handleAlternate(event) {
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    var resid1 = "R"+sessionStorage.getItem("resid") 
+    event.preventDefault();
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
-    await axios.post(proxyurl+
-      ' https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/resid1',
+    await axios.post(
+      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
       {'dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }
