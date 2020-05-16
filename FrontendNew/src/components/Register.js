@@ -11,7 +11,8 @@ export default class Register extends Component {
       RAddr:'',
       RUname:'',
       RPwd:'',
-      RId:''
+      RId:'',
+      RBranch:''
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -27,17 +28,17 @@ export default class Register extends Component {
   }
   async handleSubmit(event) {
     event.preventDefault();
-    const { RName, RUname, RPwd, RAddr, RNum,RId} = this.state;
+    const { RName, RUname, RPwd, RAddr, RNum,RId,RBranch} = this.state;
     
     const proxyurl = "https://cors-anywhere.herokuapp.com/";  
     const options = {
-      url: proxyurl+'https://utf021hdq9.execute-api.us-east-2.amazonaws.com/Prod/restaurants/signup',
+      url: proxyurl+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/signup',
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json;charset=UTF-8'
       },
-      data:{ 'Resname': `${RName}`,'Username': `${RUname}`,'Password':`${RPwd}`,'Resaddr':`${RAddr}`,'Resnum':`${RNum}`,'Resid':`${RId}`}
+      data:{ 'Resname': `${RName}`,'Username': `${RUname}`,'Password':`${RPwd}`,'Resaddr':`${RAddr}`,'Resbranch':`${RBranch}`,'Resnum':`${RNum}`,'Resid':`${RId}`}
     };
     
     axios(options)
@@ -70,6 +71,18 @@ export default class Register extends Component {
               </div>
               
               <div className="form-group">
+                <label htmlFor="rbranch">Restaurant Branch</label>
+                <input
+                  type="text"
+                  name="RBranch"
+                  className="form-control"
+                  placeholder="Which Branch?"
+                  onChange={this.handleChange}
+                  value={this.state.RBranch}
+               />
+              </div>
+              
+              <div className="form-group">
                 <label htmlFor="resid">Restaurant ID</label>
                 <input
                   type="text"
@@ -81,6 +94,7 @@ export default class Register extends Component {
                 
                 />
               </div>
+
               
               <div className="form-group">
                 <label htmlFor="uname">Restaurant Username</label>
