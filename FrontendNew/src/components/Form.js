@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import './menu.css'
 export default class Form extends Component {
   constructor(props) {
     super(props);
@@ -25,18 +26,20 @@ export default class Form extends Component {
   }
   async handleSubmit(event) {
     event.preventDefault();
+    var proxyurl = "https://cors-anywhere.herokuapp.com/"
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
-    await axios.put(
-      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
-      { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
+    await axios.put(proxyurl+
+      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/1',
+      { 'did':'DISH_DETAIL#D5','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }
 
   async handleAlternate(event) {
     event.preventDefault();
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
-    await axios.post(
-      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/R1',
+    var proxyurl = "https://cors-anywhere.herokuapp.com/"
+    await axios.post(proxyurl+
+      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/1',
       {'dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }
