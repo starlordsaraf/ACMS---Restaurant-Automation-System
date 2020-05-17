@@ -14,7 +14,8 @@ import addOffer from './components/addOffer.js';
 
 import Customer from './customer/customer.js';
 import CustomerHome from './customer/custhome.js';
-
+import ProductList from './customer/order.js';
+import bill from './customer/bill.js';
 
 class App extends Component {
   render() {
@@ -33,7 +34,10 @@ class App extends Component {
             <Route path="/addoffer" component={addOffer} />
 
             <Route path="/customer" component={Customer} />            
-            <Route path="/custhome" component={CustomerHome} />
+            <Route path="/custhome" component={CustomerHome}/>
+            <Route path="/order" component={ProductList}/>
+            <Route path="/Bill" component={bill}/>
+
           </div>
         </div>
       </Router>
