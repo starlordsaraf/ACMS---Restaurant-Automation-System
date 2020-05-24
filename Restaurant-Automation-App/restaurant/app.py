@@ -2,7 +2,6 @@ import json
 import boto3
 import requests
 import decimal
-import datetime
 from flask_lambda import FlaskLambda
 from flask import jsonify
 from flask import request
@@ -446,7 +445,6 @@ def place_order(resid):
     req = request.json
     i=1
     orderid = "O1"  # this needs to be changed to auto increment
-    time_now = datetime.datetime.today().strftime("%d-%m-%Y:%S-%M-%H")
     with table.batch_writer() as batch:
         for order in req:
             dname = order['Dishname']
@@ -457,7 +455,7 @@ def place_order(resid):
             available = order['available']
             dishid = "D"+str(i)
             recordid = "ORDER_DETAIL#"+custid+"#"+tableid+"#"+orderid+"#"+dishid
-            batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price,"timestamp":time_now})
+            batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price})
             new_quant = int(available)-int(quantity)
             data = {'dishname':dname,'ingredients':'','quantity':str(new_quant),'price':''}
             requests.post("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/" + resid, json=data)
@@ -492,10 +490,5 @@ def get_order(resid):
             {'Content-Type': "application/json"}
         )
     return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
-
-
-
-
-
 
 

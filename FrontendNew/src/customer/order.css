@@ -1,0 +1,21 @@
+.division{
+  margin-left: 15%;
+}
+ button {
+  margin: 0.5%;
+  background-color: #e7e7e7; color: black; /* Green */
+  border: none;
+  padding: 15px 40px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+#customer{
+  width: 40%;
+  margin-left: 30%;
+}
+
+#order { background:green; width: 40%;
+  margin-left: 30%;}

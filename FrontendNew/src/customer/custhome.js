@@ -16,7 +16,6 @@ export default class CustHome extends Component {
             <div align="center" >
                 <h1 id= "hello" className="h3 mb-3 font-weight-normal" >Welcome {this.CName} </h1>
                 <NavLink to="/order">Place Order</NavLink> &emsp;&emsp;&emsp;
-                <NavLink to="/orderStatus">Check Order Status</NavLink>&emsp;&emsp;&emsp;
                 <NavLink to = "/payment">Payment</NavLink>&emsp;&emsp;&emsp;
                 <br/> <br/>
             </div>
@@ -25,4 +24,5 @@ export default class CustHome extends Component {
     }
     
 }
+
  
