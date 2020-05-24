@@ -492,8 +492,3 @@ def get_order(resid):
     return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
 
 
-
-
-
-
-

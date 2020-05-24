@@ -35,6 +35,11 @@ Resources:
           AttributeType: S 
         - AttributeName: RecordId 
           AttributeType: S
+        - AttributeName: Resname 
+          AttributeType: S
+        - AttributeName: Resbranch 
+          AttributeType: S
+          
       KeySchema:
         - AttributeName: ResId
           KeyType: HASH
@@ -57,6 +62,17 @@ Resources:
           KeySchema:
             - AttributeName: ResId
               KeyType: HASH
+          Projection:
+            ProjectionType: ALL 
+          ProvisionedThroughput:
+            ReadCapacityUnits: 30
+            WriteCapacityUnits: 30        
+        - IndexName: resGSI
+          KeySchema:
+            - AttributeName: Resname
+              KeyType: HASH            
+            - AttributeName: Resbranch
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL 
           ProvisionedThroughput:
@@ -158,6 +174,31 @@ Resources:
           Properties:
             Path: /restaurants/update
             Method: post
+        RestOffers:
+          Type: Api
+          Properties:
+            Path: /restaurants/offer
+            Method: post
+        AllocateTable:
+          Type: Api
+          Properties:
+            Path: /customer/allocatetable
+            Method: post
+        FetchID:
+          Type: Api
+          Properties:
+            Path: /customer/fetchid
+            Method: post
+        AddOrder:
+          Type: Api
+          Properties:
+            Path: /customer/order/{resid}
+            Method: post
+        GetOrder:
+          Type: Api
+          Properties:
+            Path: /customer/getorder/{resid}
+            Method: post      
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
