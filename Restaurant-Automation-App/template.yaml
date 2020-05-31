@@ -199,6 +199,22 @@ Resources:
           Properties:
             Path: /customer/getorder/{resid}
             Method: post      
+        UpdateMem:
+          Type: Api
+          Properties:
+            Path: /restaurants/updatemem
+            Method: post      
+        GetMem:
+          Type: Api
+          Properties:
+            Path: /restaurants/getmem
+            Method: post   
+        GetOrders:          
+          Type: Api
+          Properties:
+            Path: /restaurants/getorders
+            Method: post      
+        
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

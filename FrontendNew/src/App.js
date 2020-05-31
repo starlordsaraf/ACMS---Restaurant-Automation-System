@@ -17,6 +17,11 @@ import CustomerHome from './customer/custhome.js';
 import ProductList from './customer/order.js';
 import bill from './customer/bill.js';
 
+import GraphHome from './components/graphs/GraphHome.js';
+import MemGraph from './components/graphs/MemGraph.js';
+import OrderGraph from './components/graphs/OrderGraph.js';
+
+
 class App extends Component {
   render() {
     return (
@@ -37,6 +42,10 @@ class App extends Component {
             <Route path="/custhome" component={CustomerHome}/>
             <Route path="/order" component={ProductList}/>
             <Route path="/Bill" component={bill}/>
+            
+            <Route path="/graphs" component={GraphHome} />            
+            <Route path="/memgraph" component={MemGraph} />            
+            <Route path="/ordergraph" component={OrderGraph} />
 
           </div>
         </div>

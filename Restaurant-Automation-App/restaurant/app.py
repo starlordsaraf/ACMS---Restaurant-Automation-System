@@ -241,7 +241,27 @@ def unblock_table(resid):
 
 
 #--------------------------------------------RESTAURANT LOGIN/DETAILS APIS--------------------------------------------------------------------
-
+@app.route('/restaurants/signup', methods=['POST'])
+def signup():
+    req=request.get_json()
+    uname=req["Username"]
+    pwd=req["Password"]
+    resid=req["Resid"]
+    
+    name=req["Resname"]
+    num=req["Resnum"]
+    branch=req["Resbranch"]
+    addr=req["Resaddr"]
+    
+    logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
+    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resbranch":branch,"Resaddr":addr,"Rescount":0,"Members":"[]"})
+    #return(res)
+    return(
+        json.dumps({"message": "entry made"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+'''
 # {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
 def signup():
@@ -253,16 +273,16 @@ def signup():
     name=req["Resname"]
     num=req["Resnum"]
     addr=req["Resaddr"]
-    
+    members="[]"
     logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
-    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr})
+    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr,"Members":"[]"})
     #return(res)
     return(
         json.dumps({"message": "entry made"}),
         200,
         {'Content-Type': "application/json"}
     )
-    
+'''    
 #{"Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/login', methods=['POST'])
 def login():
@@ -288,7 +308,7 @@ def login():
         {'Content-Type': "application/json"}
     )
 
-
+    
 @app.route('/restaurants/update', methods=['POST'])
 def updateres():
     req=request.get_json()
@@ -372,9 +392,12 @@ def restoffers():
         )
 
 
+
+
 #################################################################################################################################
 #--------------------------------------------CUSTOMER SIDE APIS------------------------------------------------------------------
 #################################################################################################################################
+    
 #API to fetch the resid given the resname
 @app.route('/customer/fetchid', methods=['POST'])
 def fetchid():
@@ -492,3 +515,123 @@ def get_order(resid):
     return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
 
 
+#################################################################################################################################
+#--------------------------------------------VISUALISATION APIS------------------------------------------------------------------
+#################################################################################################################################
+#api to add the member count to res details
+@app.route('/restaurants/updatemem', methods=['POST'])
+def updatemem():
+    req=request.get_json()
+    try:
+        resid=req["resid"] 
+        mem=req["membercount"]
+        
+        response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').eq("RES_DETAIL"))
+        #print(response['Items'][0]['Members'])
+        memlist=eval(response['Items'][0]['Members'])
+        memlist.append(int(mem))
+        members=str(memlist)
+        print(members)
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': "RES_DETAIL"
+            },
+            UpdateExpression="set Members = :r",
+            ExpressionAttributeValues={
+                ':r': members
+            }
+        )
+        
+        return (
+            json.dumps({"message": "Member count added!"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+        
+
+    except:
+        return (
+            json.dumps({"message": "Member update Failed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+
+#API to fetch the members 
+@app.route('/restaurants/getmem', methods=['POST'])
+def getmembers():
+    req = request.get_json()
+    resid=req['Resid']
+
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').eq("RES_DETAIL"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No data available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    else:    
+        final=[]
+        memstr=response['Items'][0]['Members'] # this is a string 
+        print(memstr, type(memstr))
+        memlist=eval(memstr)
+        print(memlist, type(memlist))
+        d={}
+        for i in memlist:
+            if i not in d:
+                d[i]=0
+            d[i]+=1
+        
+        for key in d:
+            final.append({'x':key,'y':d[key]})
+
+        labels=[]
+        data=[]
+        labels=list(d.keys())
+        data=list(d.values())
+        return(
+            json.dumps({"message":"successful","members":memlist,"final":final,"labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+#API to fetch all orders of a restaurant
+@app.route('/restaurants/getorders', methods=['POST'])
+def getorders():
+    req = request.get_json()
+    resid=req['Resid']
+
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No orders available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    else:   
+        d={} 
+        final=[]
+        orders=response['Items']
+        for order in orders:
+            dname=order['Dishname']
+            qty=order['quant']
+            if dname not in d:
+                d[dname]=0
+            d[dname]+=int(qty)
+
+        for key in d:
+            final.append({'x':key,'y':d[key]})
+        labels=list(d.keys())
+        data=list(d.values())
+        return(
+            json.dumps({"message":"successful","final":final,"labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
