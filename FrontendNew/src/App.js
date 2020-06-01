@@ -47,7 +47,7 @@ class App extends Component {
             <Route path="/graphs" component={GraphHome} />            
             <Route path="/memgraph" component={MemGraph} />            
             <Route path="/ordergraph" component={OrderGraph} />
-			      <Route path="/Revenuegraph" component={RevenueGraph} />
+            <Route path="/Revenuegraph" component={RevenueGraph} />
 
           </div>
         </div>
