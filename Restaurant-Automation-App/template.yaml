@@ -11,7 +11,26 @@ Globals:
     Timeout: 3
 
 Resources:
-  
+  StatisticsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: statistics-table
+      AttributeDefinitions:
+        - AttributeName: Resid
+          AttributeType: S
+        - AttributeName: Recid
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Resid
+          KeyType: HASH
+        - AttributeName: Recid
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30
+
+
+
   LoginTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -93,6 +112,9 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName:
               !Ref LoginTable 
+        - DynamoDBCrudPolicy:
+            TableName:
+              !Ref StatisticsTable
       Events:
         Test:
           Type: Api
@@ -209,12 +231,23 @@ Resources:
           Properties:
             Path: /restaurants/getmem
             Method: post   
-        GetOrders:          
+        GetOrders:
           Type: Api
           Properties:
             Path: /restaurants/getorders
-            Method: post      
-        
+            Method: post
+        InsertRevenue:
+          Type: Api
+          Properties:
+            Path: /restaurants/statistics
+            Method: post
+        GetRevenue:
+          Type: Api
+          Properties:
+            Path: /restaurants/statistics/{resid}
+            Method: get
+
+
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

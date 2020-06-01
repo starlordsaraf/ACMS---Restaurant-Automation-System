@@ -8,6 +8,7 @@ from flask import request
 from flask import Response
 from boto3.dynamodb.conditions import Key,Attr
 from flask_cors import CORS
+from datetime import *
 
 # import requests
 
@@ -22,6 +23,7 @@ CORS(app)
 ddb = boto3.resource("dynamodb")
 table = ddb.Table('restaurant-table')
 logintable = ddb.Table('logintable')
+statistics_table= ddb.Table('statistics-table')
 
 #################################################################################################################
 #---------------------------------RESTAURANT ADMIN side APIS-----------------------------------------------------
@@ -468,6 +470,7 @@ def place_order(resid):
     req = request.json
     i=1
     orderid = "O1"  # this needs to be changed to auto increment
+    time_now=datetime.datetime.today().strftime("%d-%m-%Y:%S-%M-%H")
     with table.batch_writer() as batch:
         for order in req:
             dname = order['Dishname']
@@ -478,7 +481,7 @@ def place_order(resid):
             available = order['available']
             dishid = "D"+str(i)
             recordid = "ORDER_DETAIL#"+custid+"#"+tableid+"#"+orderid+"#"+dishid
-            batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price})
+            batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price,"timestamp":time_now})
             new_quant = int(available)-int(quantity)
             data = {'dishname':dname,'ingredients':'','quantity':str(new_quant),'price':''}
             requests.post("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/" + resid, json=data)
@@ -635,3 +638,65 @@ def getorders():
             200,
             {'Content-Type': "application/json"}
         )
+
+@app.route('/restaurants/statistics', methods=['POST'])
+def add_statistics():
+    #yet the integration to this call has to be done
+    details = request.json
+    resid = details['Resid']
+    resid =resid+"#revenue"
+    bill = details['bill']
+    bill=decimal.Decimal(bill)
+    #year=datetime.datetime.today().strftime("%y")
+    #month= datetime.datetime.today().strftime("%m")
+    #day= datetime.datetime.today().strftime("%d")
+    #timestamp = details['timestamp']
+    #recid=year+"#"+month+"#"+day
+    recid=date.today().isoformat()
+    #print("hello",type(recid),type(recid),type(bill))
+	
+    try:
+        response = statistics_table.update_item(
+            Key={
+                'Resid': resid,
+                'Recid': recid
+            },
+            UpdateExpression="set revenue = revenue+ :r",
+            ExpressionAttributeValues={
+                ':r': bill
+
+            }
+        )
+
+    except:
+        statistics_table.put_item(Item={"Resid": resid, "Recid":recid, "revenue": bill})
+
+    return (
+            json.dumps({"message": "addedd"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+@app.route('/restaurants/statistics/<string:resid>', methods=['GET'])
+def get_statistics(resid):
+    dates=[]
+    revenue=[]
+    resid=resid+"#revenue"
+    for i in range(7,-1,-1):
+        days_before = (date.today() - timedelta(days=i)).isoformat()
+        response=statistics_table.query(KeyConditionExpression=Key("Resid").eq(resid) & Key('Recid').eq(days_before))
+        print(days_before,response['Items'])
+        dates.append(days_before)
+        if(response['Items']==[]):
+            revenue.append(0)
+        else:
+            revenue.append(int(response['Items'][0]['revenue']))
+
+    return (
+            json.dumps({"message": "addedd","labels":dates,"data":revenue}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+
+
