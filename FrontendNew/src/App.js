@@ -20,6 +20,7 @@ import bill from './customer/bill.js';
 import GraphHome from './components/graphs/GraphHome.js';
 import MemGraph from './components/graphs/MemGraph.js';
 import OrderGraph from './components/graphs/OrderGraph.js';
+import RevenueGraph from './components/graphs/RevenueGraph.js';
 
 
 class App extends Component {
@@ -46,6 +47,7 @@ class App extends Component {
             <Route path="/graphs" component={GraphHome} />            
             <Route path="/memgraph" component={MemGraph} />            
             <Route path="/ordergraph" component={OrderGraph} />
+			      <Route path="/Revenuegraph" component={RevenueGraph} />
 
           </div>
         </div>
