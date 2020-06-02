@@ -470,7 +470,7 @@ def place_order(resid):
     req = request.json
     i=1
     orderid = "O1"  # this needs to be changed to auto increment
-    time_now=datetime.datetime.today().strftime("%d-%m-%Y:%S-%M-%H")
+    time_now=datetime.today().strftime("%d-%m-%Y:%S-%M-%H")
     with table.batch_writer() as batch:
         for order in req:
             dname = order['Dishname']
@@ -699,4 +699,102 @@ def get_statistics(resid):
         )
 
 
+#API to get orders per day
+@app.route('/restaurants/gettodaysorders', methods=['POST'])
+def get_todays_orders():
+    req = request.get_json()
+    resid=req['Resid']
 
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No orders available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+    else:
+        orders = response['Items']
+        d={}
+        customers = []
+        d['Before 12:00PM']=0
+        d['12:00PM-5:00PM']=0
+        d['After 5:00PM']=0
+        for order in orders:
+            if(order['RecordId'].split('#')[1] not in customers):
+                customers.append(order['RecordId'].split('#')[1])
+                order_time = datetime.strptime(order['timestamp'],'%d-%m-%Y:%H-%M-%S')
+                if(order_time.date()==datetime.now().date()):
+                    if(order_time.time()<=time(12,0,0)):
+                        d['Before 12:00PM']+=1
+                    elif(order_time.time()<=time(17,0,0)):
+                        d['12:00PM-5:00PM']+=1
+                    elif(order_time.time()>time(17,0,0)):
+                        d['After 5:00PM']+=1
+        
+        labels=list(d.keys())
+        data=list(d.values())
+
+        return (
+            json.dumps({"message": "customers counted for today","labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+            
+#API to get orders per day
+@app.route('/restaurants/getmonthlyorders', methods=['POST'])
+def get_monthly_orders():
+    req = request.get_json()
+    resid=req['Resid']
+
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No orders available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+    else:
+        orders = response['Items']
+        d={}
+        customers = []
+        d['Mon']=0
+        d['Tue']=0
+        d['Wed']=0
+        d['Thurs']=0
+        d['Fri']=0
+        d['Sat']=0
+        d['Sun']=0
+
+        for order in orders:
+            if(order['RecordId'].split('#')[1] not in customers):
+                customers.append(order['RecordId'].split('#')[1])
+                order_time = datetime.strptime(order['timestamp'],'%d-%m-%Y:%H-%M-%S')
+                if(order_time.month==datetime.now().month):
+                    if(order_time.weekday()==0):
+                        d['Mon']+=1
+                    elif(order_time.weekday()==1):
+                        d['Tue']+=1
+                    elif(order_time.weekday()==2):
+                        d['Wed']+=1
+                    elif(order_time.weekday()==3):
+                        d['Thurs']+=1
+                    elif(order_time.weekday()==4):
+                        d['Fri']+=1
+                    elif(order_time.weekday()==5):
+                        d['Sat']+=1
+                    elif(order_time.weekday()==6):
+                        d['Sun']+=1
+
+        labels=list(d.keys())
+        data=list(d.values())
+
+        return (
+            json.dumps({"message": "customers counted weekly this month","labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
