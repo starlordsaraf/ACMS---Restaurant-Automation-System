@@ -1,6 +1,7 @@
 import React from 'react';
 import {Bar} from 'react-chartjs-2';
 import axios from 'axios';
+import { NavLink } from 'react-router-dom';
 
 export default class RevenueGraph extends React.Component {
   constructor(props) {
@@ -68,6 +69,14 @@ export default class RevenueGraph extends React.Component {
 
     return (
       <div >
+        <div align="center">
+          <NavLink to="/memgraph">Common Seating</NavLink> &emsp;&emsp;&emsp;
+          <NavLink to="/ordergraph">Popular Dishes</NavLink>&emsp;&emsp;&emsp;
+          <NavLink to="/customersdaily">Today's Customers</NavLink>&emsp;&emsp;&emsp;
+          <NavLink to="/customersweekly">This Month's Customers</NavLink>&emsp;&emsp;&emsp;
+          <br/> <br/>
+                 
+       </div>
         <Bar
           data={this.state}
           options={{
