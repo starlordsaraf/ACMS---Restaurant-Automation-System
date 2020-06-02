@@ -18,8 +18,8 @@ export default class CustomersWeekly extends React.Component {
   async renderGraph(){
     console.log("came here")
     var x,y;
-    //var resid=sessionStorage.getItem("resid");
-    var resid="1";
+    var resid=sessionStorage.getItem("resid");
+    //var resid="1";
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     const options = {
       url: proxyurl+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/getmonthlyorders/'+resid,
