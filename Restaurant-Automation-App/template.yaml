@@ -246,6 +246,16 @@ Resources:
           Properties:
             Path: /restaurants/statistics/{resid}
             Method: get
+        GetDailyCustomers:
+          Type: Api
+          Properties:
+            Path: /restaurants/gettodaysorders/{resid}
+            Method: get
+        GetWeeklyCustomers:
+          Type: Api
+          Properties:
+            Path: /restaurants/getmonthlyorders/{resid}
+            Method: get
 
 
 

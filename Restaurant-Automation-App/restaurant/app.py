@@ -700,11 +700,12 @@ def get_statistics(resid):
 
 
 #API to get orders per day
-@app.route('/restaurants/gettodaysorders', methods=['POST'])
-def get_todays_orders():
-    req = request.get_json()
-    resid=req['Resid']
+@app.route('/restaurants/gettodaysorders/<string:resid>', methods=['GET'])
+def get_todays_orders(Resid):
+    #req = request.get_json()
+    #resid=req['Resid']
 
+    resid = Resid
     response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
     print(response['Items'])
 
@@ -744,10 +745,12 @@ def get_todays_orders():
 
             
 #API to get orders per day
-@app.route('/restaurants/getmonthlyorders', methods=['POST'])
-def get_monthly_orders():
-    req = request.get_json()
-    resid=req['Resid']
+@app.route('/restaurants/getmonthlyorders/<string:resid>', methods=['GET'])
+def get_monthly_orders(Resid):
+    #req = request.get_json()
+    #resid=req['Resid']
+
+    resid = Resid
 
     response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
     print(response['Items'])
