@@ -22,6 +22,10 @@ import MemGraph from './components/graphs/MemGraph.js';
 import OrderGraph from './components/graphs/OrderGraph.js';
 import RevenueGraph from './components/graphs/RevenueGraph.js';
 
+import CustomersWeekly from './components/graphs/CustomersWeekly.js'
+import CustomersDaily from './components/graphs/CustomersDaily.js'
+
+
 
 class App extends Component {
   render() {
@@ -48,6 +52,10 @@ class App extends Component {
             <Route path="/memgraph" component={MemGraph} />            
             <Route path="/ordergraph" component={OrderGraph} />
             <Route path="/Revenuegraph" component={RevenueGraph} />
+            <Route path="/customersdaily" component={CustomersDaily} />
+            <Route path="/customersweekly" component={CustomersWeekly} />
+
+
 
           </div>
         </div>
