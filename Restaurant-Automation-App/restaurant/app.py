@@ -700,7 +700,7 @@ def get_statistics(resid):
 
 
 #API to get orders per day
-@app.route('/restaurants/gettodaysorders/<string:resid>', methods=['GET'])
+@app.route('/restaurants/gettodaysorders/<string:Resid>', methods=['GET'])
 def get_todays_orders(Resid):
     #req = request.get_json()
     #resid=req['Resid']
@@ -745,7 +745,7 @@ def get_todays_orders(Resid):
 
             
 #API to get orders per day
-@app.route('/restaurants/getmonthlyorders/<string:resid>', methods=['GET'])
+@app.route('/restaurants/getmonthlyorders/<string:Resid>', methods=['GET'])
 def get_monthly_orders(Resid):
     #req = request.get_json()
     #resid=req['Resid']
