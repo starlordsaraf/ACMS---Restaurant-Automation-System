@@ -16,7 +16,7 @@ export default class bill extends React.Component {
    }
 	async componentDidMount() {
 
-		await axios.post("https://cors-anywhere.herokuapp.com/"+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/customer/getorder/1',{'custid': 'C1'}).then((findresponse)=>{
+		await axios.post("https://cors-anywhere.herokuapp.com/"+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/customer/getorder/'+resid1,{'custid': customerid}).then((findresponse)=>{
         this.setState({final: findresponse.data});
         console.log(this.state.final);
     });

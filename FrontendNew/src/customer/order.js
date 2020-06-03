@@ -88,7 +88,7 @@ export default class ProductList extends React.Component {
     this.showBill = this.showBill.bind(this);
   }
   async componentDidMount() {
-    fetch("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/1",{    //change to resid
+    fetch('https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/'+resid1,{    //change to resid
         method: 'get'
     }).then((Response)=>Response.json()).then((findresponse)=>{
         this.setState({productList: findresponse})
@@ -99,7 +99,7 @@ export default class ProductList extends React.Component {
 
   async handleAlternate() {
     const {items} = this.state;
-    axios.post("https://cors-anywhere.herokuapp.com/"+"https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/customer/order/1",items).then(response => {
+    axios.post('https://cors-anywhere.herokuapp.com/'+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/customer/order/'+resid1,items).then(response => {
           //go to another page
           window.location.reload(false);
         alert("Order Placed");

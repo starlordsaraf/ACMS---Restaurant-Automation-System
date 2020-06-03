@@ -26,20 +26,23 @@ export default class Form extends Component {
   }
   async handleSubmit(event) {
     event.preventDefault();
-    var proxyurl = "https://cors-anywhere.herokuapp.com/"
+    var resid1 = sessionStorage.getItem("resid");
+    var proxyurl = "https://cors-anywhere.herokuapp.com/";
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
     await axios.put(proxyurl+
-      ' https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/1',
-      { 'did':'DISH_DETAIL#D5','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
+      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/'+resid1,
+      { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
+    console.log(resid1);
   }
 
   async handleAlternate(event) {
     event.preventDefault();
+    var resid1 = sessionStorage.getItem("resid");
     const { Dname, Dcategory, Dingredients, Dquant,Price} = this.state;
     var proxyurl = "https://cors-anywhere.herokuapp.com/"
     await axios.post(proxyurl+
-      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/1',
+      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/'+resid1,
       {'dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
     );
   }

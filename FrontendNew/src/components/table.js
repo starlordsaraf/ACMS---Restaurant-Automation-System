@@ -24,7 +24,7 @@ export default class menu extends React.Component {
     async componentDidMount() {
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     var resid1 = sessionStorage.getItem("resid")   //use after login is done
-    fetch(proxyurl+"https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/1",{    //change to resid
+    fetch(proxyurl+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/'+resid1,{    //change to resid
         method: 'get'
     }).then((Response)=>Response.json()).then((findresponse)=>{
         this.setState({tableData: findresponse})
@@ -46,7 +46,7 @@ export default class menu extends React.Component {
     const {del} = this.state;
     console.log(`${del}`);
     axios.delete(proxyurl+
-      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/1',
+      'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/'+resid1,
       {data: {'did': `${del}`}
     });
   }
