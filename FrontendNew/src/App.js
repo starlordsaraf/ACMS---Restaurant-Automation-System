@@ -17,6 +17,16 @@ import CustomerHome from './customer/custhome.js';
 import ProductList from './customer/order.js';
 import bill from './customer/bill.js';
 
+import GraphHome from './components/graphs/GraphHome.js';
+import MemGraph from './components/graphs/MemGraph.js';
+import OrderGraph from './components/graphs/OrderGraph.js';
+import RevenueGraph from './components/graphs/RevenueGraph.js';
+
+import CustomersWeekly from './components/graphs/CustomersWeekly.js'
+import CustomersDaily from './components/graphs/CustomersDaily.js'
+
+
+
 class App extends Component {
   render() {
     return (
@@ -37,6 +47,15 @@ class App extends Component {
             <Route path="/custhome" component={CustomerHome}/>
             <Route path="/order" component={ProductList}/>
             <Route path="/Bill" component={bill}/>
+            
+            <Route path="/graphs" component={GraphHome} />            
+            <Route path="/memgraph" component={MemGraph} />            
+            <Route path="/ordergraph" component={OrderGraph} />
+            <Route path="/Revenuegraph" component={RevenueGraph} />
+            <Route path="/customersdaily" component={CustomersDaily} />
+            <Route path="/customersweekly" component={CustomersWeekly} />
+
+
 
           </div>
         </div>

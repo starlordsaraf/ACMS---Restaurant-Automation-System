@@ -8,6 +8,7 @@ from flask import request
 from flask import Response
 from boto3.dynamodb.conditions import Key,Attr
 from flask_cors import CORS
+from datetime import *
 
 # import requests
 
@@ -22,6 +23,7 @@ CORS(app)
 ddb = boto3.resource("dynamodb")
 table = ddb.Table('restaurant-table')
 logintable = ddb.Table('logintable')
+statistics_table= ddb.Table('statistics-table')
 
 #################################################################################################################
 #---------------------------------RESTAURANT ADMIN side APIS-----------------------------------------------------
@@ -241,7 +243,27 @@ def unblock_table(resid):
 
 
 #--------------------------------------------RESTAURANT LOGIN/DETAILS APIS--------------------------------------------------------------------
-
+@app.route('/restaurants/signup', methods=['POST'])
+def signup():
+    req=request.get_json()
+    uname=req["Username"]
+    pwd=req["Password"]
+    resid=req["Resid"]
+    
+    name=req["Resname"]
+    num=req["Resnum"]
+    branch=req["Resbranch"]
+    addr=req["Resaddr"]
+    
+    logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
+    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resbranch":branch,"Resaddr":addr,"Rescount":0,"Members":"[]"})
+    #return(res)
+    return(
+        json.dumps({"message": "entry made"}),
+        200,
+        {'Content-Type': "application/json"}
+    )
+'''
 # {"Resname":"Pizza hut","Resaddr":"Banashkari,98/4","Resnum":"23316745","Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/signup', methods=['POST'])
 def signup():
@@ -253,16 +275,16 @@ def signup():
     name=req["Resname"]
     num=req["Resnum"]
     addr=req["Resaddr"]
-    
+    members="[]"
     logintable.put_item(Item={"Resid":resid,"Username":uname,"Password":pwd})
-    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr})
+    res=table.put_item(Item={"ResId":resid,"RecordId":"RES_DETAIL","Resname":name,"Resnum":num,"Resaddr":addr,"Members":"[]"})
     #return(res)
     return(
         json.dumps({"message": "entry made"}),
         200,
         {'Content-Type': "application/json"}
     )
-    
+'''    
 #{"Resid":"1","Username":"PizHut","Password":"1234"}
 @app.route('/restaurants/login', methods=['POST'])
 def login():
@@ -288,7 +310,7 @@ def login():
         {'Content-Type': "application/json"}
     )
 
-
+    
 @app.route('/restaurants/update', methods=['POST'])
 def updateres():
     req=request.get_json()
@@ -372,9 +394,12 @@ def restoffers():
         )
 
 
+
+
 #################################################################################################################################
 #--------------------------------------------CUSTOMER SIDE APIS------------------------------------------------------------------
 #################################################################################################################################
+    
 #API to fetch the resid given the resname
 @app.route('/customer/fetchid', methods=['POST'])
 def fetchid():
@@ -445,6 +470,7 @@ def place_order(resid):
     req = request.json
     i=1
     orderid = "O1"  # this needs to be changed to auto increment
+    time_now=datetime.today().strftime("%d-%m-%Y:%S-%M-%H")
     with table.batch_writer() as batch:
         for order in req:
             dname = order['Dishname']
@@ -455,7 +481,7 @@ def place_order(resid):
             available = order['available']
             dishid = "D"+str(i)
             recordid = "ORDER_DETAIL#"+custid+"#"+tableid+"#"+orderid+"#"+dishid
-            batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price})
+            batch.put_item(Item={"ResId": resid,"RecordId": recordid,"Dishname": dname,"quant": quantity,"price": price,"timestamp":time_now})
             new_quant = int(available)-int(quantity)
             data = {'dishname':dname,'ingredients':'','quantity':str(new_quant),'price':''}
             requests.post("https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/" + resid, json=data)
@@ -492,3 +518,286 @@ def get_order(resid):
     return (json.dumps("Restaurant doesn't exist"), 200, {'Content-Type': "application/json"})
 
 
+#################################################################################################################################
+#--------------------------------------------VISUALISATION APIS------------------------------------------------------------------
+#################################################################################################################################
+#api to add the member count to res details
+@app.route('/restaurants/updatemem', methods=['POST'])
+def updatemem():
+    req=request.get_json()
+    try:
+        resid=req["resid"] 
+        mem=req["membercount"]
+        
+        response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').eq("RES_DETAIL"))
+        #print(response['Items'][0]['Members'])
+        memlist=eval(response['Items'][0]['Members'])
+        memlist.append(int(mem))
+        members=str(memlist)
+        print(members)
+        table.update_item(
+            Key={
+                'ResId': resid,
+                'RecordId': "RES_DETAIL"
+            },
+            UpdateExpression="set Members = :r",
+            ExpressionAttributeValues={
+                ':r': members
+            }
+        )
+        
+        return (
+            json.dumps({"message": "Member count added!"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+        
+
+    except:
+        return (
+            json.dumps({"message": "Member update Failed"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+
+#API to fetch the members 
+@app.route('/restaurants/getmem', methods=['POST'])
+def getmembers():
+    req = request.get_json()
+    resid=req['Resid']
+
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').eq("RES_DETAIL"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No data available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    else:    
+        final=[]
+        memstr=response['Items'][0]['Members'] # this is a string 
+        print(memstr, type(memstr))
+        memlist=eval(memstr)
+        print(memlist, type(memlist))
+        d={}
+        for i in memlist:
+            if i not in d:
+                d[i]=0
+            d[i]+=1
+        
+        for key in d:
+            final.append({'x':key,'y':d[key]})
+
+        labels=[]
+        data=[]
+        labels=list(d.keys())
+        data=list(d.values())
+        return(
+            json.dumps({"message":"successful","members":memlist,"final":final,"labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+#API to fetch all orders of a restaurant
+@app.route('/restaurants/getorders', methods=['POST'])
+def getorders():
+    req = request.get_json()
+    resid=req['Resid']
+
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No orders available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+    else:   
+        d={} 
+        final=[]
+        orders=response['Items']
+        for order in orders:
+            dname=order['Dishname']
+            qty=order['quant']
+            if dname not in d:
+                d[dname]=0
+            d[dname]+=int(qty)
+
+        for key in d:
+            final.append({'x':key,'y':d[key]})
+        labels=list(d.keys())
+        data=list(d.values())
+        return(
+            json.dumps({"message":"successful","final":final,"labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+@app.route('/restaurants/statistics', methods=['POST'])
+def add_statistics():
+    #yet the integration to this call has to be done
+    details = request.json
+    resid = details['Resid']
+    resid =resid+"#revenue"
+    bill = details['bill']
+    bill=decimal.Decimal(bill)
+    #year=datetime.datetime.today().strftime("%y")
+    #month= datetime.datetime.today().strftime("%m")
+    #day= datetime.datetime.today().strftime("%d")
+    #timestamp = details['timestamp']
+    #recid=year+"#"+month+"#"+day
+    recid=date.today().isoformat()
+    #print("hello",type(recid),type(recid),type(bill))
+	
+    try:
+        response = statistics_table.update_item(
+            Key={
+                'Resid': resid,
+                'Recid': recid
+            },
+            UpdateExpression="set revenue = revenue+ :r",
+            ExpressionAttributeValues={
+                ':r': bill
+
+            }
+        )
+
+    except:
+        statistics_table.put_item(Item={"Resid": resid, "Recid":recid, "revenue": bill})
+
+    return (
+            json.dumps({"message": "addedd"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+@app.route('/restaurants/statistics/<string:resid>', methods=['GET'])
+def get_statistics(resid):
+    dates=[]
+    revenue=[]
+    resid=resid+"#revenue"
+    for i in range(7,-1,-1):
+        days_before = (date.today() - timedelta(days=i)).isoformat()
+        response=statistics_table.query(KeyConditionExpression=Key("Resid").eq(resid) & Key('Recid').eq(days_before))
+        print(days_before,response['Items'])
+        dates.append(days_before)
+        if(response['Items']==[]):
+            revenue.append(0)
+        else:
+            revenue.append(int(response['Items'][0]['revenue']))
+
+    return (
+            json.dumps({"message": "addedd","labels":dates,"data":revenue}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+
+#API to get orders per day
+@app.route('/restaurants/gettodaysorders/<string:Resid>', methods=['GET'])
+def get_todays_orders(Resid):
+    #req = request.get_json()
+    #resid=req['Resid']
+
+    resid = Resid
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No orders available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+    else:
+        orders = response['Items']
+        d={}
+        customers = []
+        d['Before 12:00PM']=0
+        d['12:00PM-5:00PM']=0
+        d['After 5:00PM']=0
+        for order in orders:
+            if(order['RecordId'].split('#')[1] not in customers):
+                customers.append(order['RecordId'].split('#')[1])
+                order_time = datetime.strptime(order['timestamp'],'%d-%m-%Y:%H-%M-%S')
+                if(order_time.date()==datetime.now().date()):
+                    if(order_time.time()<=time(12,0,0)):
+                        d['Before 12:00PM']+=1
+                    elif(order_time.time()<=time(17,0,0)):
+                        d['12:00PM-5:00PM']+=1
+                    elif(order_time.time()>time(17,0,0)):
+                        d['After 5:00PM']+=1
+        
+        labels=list(d.keys())
+        data=list(d.values())
+
+        return (
+            json.dumps({"message": "customers counted for today","labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+
+            
+#API to get orders per day
+@app.route('/restaurants/getmonthlyorders/<string:Resid>', methods=['GET'])
+def get_monthly_orders(Resid):
+    #req = request.get_json()
+    #resid=req['Resid']
+
+    resid = Resid
+
+    response = table.query(KeyConditionExpression=Key("ResId").eq(resid) & Key('RecordId').begins_with("ORDER_DETAIL#"))
+    print(response['Items'])
+
+    if(response['Items']==[]):
+        return(
+            json.dumps({"message":"No orders available for restaurant"}),
+            200,
+            {'Content-Type': "application/json"}
+        )
+    else:
+        orders = response['Items']
+        d={}
+        customers = []
+        d['Mon']=0
+        d['Tue']=0
+        d['Wed']=0
+        d['Thurs']=0
+        d['Fri']=0
+        d['Sat']=0
+        d['Sun']=0
+
+        for order in orders:
+            if(order['RecordId'].split('#')[1] not in customers):
+                customers.append(order['RecordId'].split('#')[1])
+                order_time = datetime.strptime(order['timestamp'],'%d-%m-%Y:%H-%M-%S')
+                if(order_time.month==datetime.now().month):
+                    if(order_time.weekday()==0):
+                        d['Mon']+=1
+                    elif(order_time.weekday()==1):
+                        d['Tue']+=1
+                    elif(order_time.weekday()==2):
+                        d['Wed']+=1
+                    elif(order_time.weekday()==3):
+                        d['Thurs']+=1
+                    elif(order_time.weekday()==4):
+                        d['Fri']+=1
+                    elif(order_time.weekday()==5):
+                        d['Sat']+=1
+                    elif(order_time.weekday()==6):
+                        d['Sun']+=1
+
+        labels=list(d.keys())
+        data=list(d.values())
+
+        return (
+            json.dumps({"message": "customers counted weekly this month","labels":labels,"data":data}),
+            200,
+            {'Content-Type': "application/json"}
+        )
