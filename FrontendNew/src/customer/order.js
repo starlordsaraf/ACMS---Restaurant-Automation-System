@@ -99,7 +99,8 @@ export default class ProductList extends React.Component {
 
   async handleAlternate() {
     const {items} = this.state;
-    axios.post('https://cors-anywhere.herokuapp.com/'+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/customer/order/'+resid1,items).then(response => {
+    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    axios.post(proxyurl+'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/customer/order/'+resid1,items).then(response => {
           //go to another page
           window.location.reload(false);
         alert("Order Placed");
@@ -129,16 +130,13 @@ export default class ProductList extends React.Component {
   async showBill() {
       var custid=customerid;
       sessionStorage.setItem("custid",custid );
-      var resid= resid1;
-      sessionStorage.setItem("resid",resid);
-
       this.props.history.push(`/Bill`)
   }
 
   
 
   render() {
-    if (!this.state.productList) return <p>loading...!!!!</p>;
+    if (!this.state.productList) return <p>Processing Request...!!!!</p>;
     var component = this;
     var products = this.state.productList.map(function(product) {
       return (
@@ -154,10 +152,10 @@ export default class ProductList extends React.Component {
     return (
       <div>
         {products}
-        <h5>VIEW UR ORDERS </h5>
+        <h5>VIEW YOUR ORDERS </h5>
         <div id="customer"><JsonToTable json={this.state.order} columns={this.state.columns}/> </div><br/>
-        <button name='Submit' style = {{width: '200px',padding: '10px 30px'}} onClick={this.handleAlternate}> SUBMIT ORDER </button>
-        <button name='Bill' style = {{width: '200px',padding: '10px 30px'}} onClick={this.showBill} > SHOW BILL </button> 
+        <button name='Submit' style = {{width: '200px',padding: '10px 30px',backgroundColor:'black',color:'white'}} onClick={this.handleAlternate}> SUBMIT ORDER </button>
+        <button name='Bill' style = {{width: '200px',padding: '10px 30px',backgroundColor:'black',color:'white'}} onClick={this.showBill} > SHOW BILL </button> 
       </div>
     );
   }

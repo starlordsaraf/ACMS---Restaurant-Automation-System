@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
-
-
 export default class Login extends Component {
   constructor(props) {
     super(props);
@@ -60,7 +58,7 @@ export default class Login extends Component {
         <div className="row">
           <div className="col-md-6 mt-5 mx-auto">
             <form noValidate onSubmit={this.handleSubmit}>
-              <h1 className="h3 mb-3 font-weight-normal">Please sign in</h1>
+              <h2>Please sign in</h2>
 
               <div className="form-group">
                 <label htmlFor="uname">Username</label>

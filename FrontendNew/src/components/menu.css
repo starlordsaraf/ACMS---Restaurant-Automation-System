@@ -1,27 +1,23 @@
-button {
-  margin: 0.5%;
-  background-color: #e7e7e7; color: black; /* Green */
-  border: none;
-  padding: 15px 40px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-}
-
 label{
-    display: inline-block;
-    float: center;
-    width: 100px;
+    float: left;
+    width: 30%;
     text-align: left;
     margin:0.5%;
 }
 
 input {
-  display: inline-block;
+   max-width: 65%;
   float: centre;
 }
 
 .menu,.App{
   text-align: center;
+}
+
+.background{
+  background-image: url('FSM.png');
+   background-size: cover;
+   background-repeat: no-repeat;
+   background-position: center;
+   height: 665px;
 }
