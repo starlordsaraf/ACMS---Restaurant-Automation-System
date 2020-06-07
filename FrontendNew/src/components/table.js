@@ -48,7 +48,10 @@ export default class menu extends React.Component {
     axios.delete(proxyurl+
       'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/'+resid1,
       {data: {'did': `${del}`}
-    });
+    }).then(response => {
+        alert("Item Deleted Successfully");
+        window.location.reload(false);
+      });
   }
     
     render() {        
@@ -57,13 +60,15 @@ export default class menu extends React.Component {
           <div className="menu">      
             <br/> <h4>MENU</h4>
             <JsonToTable json={this.state.tableData}/>
-            <h4>Enter the DishID to be deleted:</h4>
+            <br></br>
+            <br></br>
+            <h5>Enter the DishID to be deleted:</h5>
             <input style={{ width: "300px" }}
             type="text"
             name="del"
             onChange={this.handleChange}
             value={this.state.del}/><p></p>
-            <button name='Delete' style = {{width: '200px',padding: '10px 30px'}} onClick={this.handleAlternate}> DELETE DISH </button> 
+            <button name='Delete' style = {{width: '200px',padding: '10px 30px',backgroundColor:'black',color:'white'}} onClick={this.handleAlternate}> DELETE DISH </button> 
           </div>
         );
     }   

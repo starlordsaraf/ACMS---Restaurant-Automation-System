@@ -32,7 +32,10 @@ export default class Form extends Component {
     await axios.put(proxyurl+
       'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/'+resid1,
       { 'did':'DISH_DETAIL#D3','dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
-    );
+    ).then(response => {
+        alert("Item Added Successfully");
+        window.location.reload(false);
+      });
     console.log(resid1);
   }
 
@@ -44,62 +47,81 @@ export default class Form extends Component {
     await axios.post(proxyurl+
       'https://u4gkjhxoe5.execute-api.us-east-2.amazonaws.com/Prod/restaurants/menu/dish/'+resid1,
       {'dishname': `${Dname}`,'category': `${Dcategory}`,'ingredients':`${Dingredients}`,'quantity':`${Dquant}`,'price':`${Price}`}
-    );
+    ).then(response => {
+        alert("Item Updated Successfully");
+        window.location.reload(false);
+      });
   }
 
   
   render() {
     return (
-      <div className="App">
-       <h1> Enter the Dish details</h1>
+      <div className="container">
+        <div className="row">
+          <div className="col-md-6 mt-5 mx-auto">
+
+       <h2> Enter the Dish details</h2>
         <form onSubmit={this.handleSubmit}>
-          <label>Name:
+        <div className="form-group">
+          <label>Name
           </label>
           <input style={{ width: "500px" }}
             type="text"
             name="Dname"
+            className="form-control"
             onChange={this.handleChange}
             value={this.state.Dname}
           /><p></p>
-          
-          <label>Category:
+          </div>
+
+          <div className="form-group">
+          <label>Category
           </label>
           <input style={{ width: "500px" }}
             type="text"
             name="Dcategory"
+            className="form-control"
             onChange={this.handleChange}
             value={this.state.Dcategory}
           /><p></p>
-
-          <label>Ingredients:</label>
+          </div>
+          <div className="form-group">
+          <label>Ingredients</label>
           <input style={{ width: "500px", height: "50px"}}
             type="text"
             name="Dingredients"
+            className="form-control"
             onChange={this.handleChange}
             value={this.state.Dingredients}
           /><p></p>
-            
-          <label>Quantity:</label>
+          </div>
+          <div className="form-group">  
+          <label>Quantity</label>
           <input style={{ width: "500px" }}
             type="number"
             name="Dquant"
+            className="form-control"
             onChange={this.handleChange}
             value={this.state.Dquant}
           /><p></p>
-
-          <label>Price:</label>
+          </div>
+          <div className="form-group">
+          <label>Price</label>
           <input style={{ width: "500px" }}
             type="number"
             name="Price"
+            className="form-control"
             onChange={this.handleChange}
             value={this.state.Price}
           /><p></p>
+          </div>
 
-
-          <button name='submit' type ='submit' style = {{width: "250px"}}> ADD DISH </button> 
-          <button name = 'update' onClick={this.handleAlternate} style = {{width: "250px"}}> UPDATE DISH </button>
+          <button name='submit' type ='submit' style = {{width: "350px"},{marginRight:"10%"}} className="btn btn-lg btn-primary btn-block"> ADD DISH </button> 
+          <button name = 'update' onClick={this.handleAlternate} style = {{width: "350px"},{marginRight:"10%"}} className="btn btn-lg btn-primary btn-block"> UPDATE DISH </button>
 
       </form>
+      </div>
+      </div>
       </div>
     );
   }

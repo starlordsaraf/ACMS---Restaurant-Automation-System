@@ -87,16 +87,35 @@ class seatingChart extends Component {
 	<div>
        
 		<br/>
-		<h3> SELECT THE NUMBER OF SEATS TO ADD A TABLE</h3>
-    <form>NUMBER OF SEATS&nbsp;
-      <input type = "number" id="seats"></input>&nbsp;&nbsp;
-      <button onClick={this.addtable} type="reset">ADD TABLE </button>       
-    </form><br/>
-  	<h3>ENTER TABLE NUMBER TO DELETE TABLE</h3>
-    <form>TABLE NUMBER&nbsp;
-      <input type = "number" id="tid" placeholder="Eg: 1"></input>&nbsp;&nbsp;
-      <button onClick={this.deletetable} type="reset">DELETE TABLE</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    </form>
+		<h3> Select the number of seats to add to a table</h3>
+     <div className="container">
+        <div className="row">
+          <div className="col-md-5 mt-5 mx-auto">
+            <form>
+              <div className="form-group">
+              <label> Number of seats</label> 
+              <input type = "number" id="seats" className="form-control"></input><br></br>
+              <button onClick={this.addtable} type="reset" className="btn btn-lg btn-primary btn-block" style={{fontSize:15}}>ADD TABLE </button> 
+              </div>      
+              </form><br/>
+            </div>
+        </div>
+      </div>
+
+      <h3>Enter table number to delete a table</h3>
+      <div className="container">
+        <div className="row">
+          <div className="col-md-5 mt-5 mx-auto">
+            <form>
+            <div className="form-group">
+            <label> Table Number </label>
+              <input type = "number" id="tid" placeholder="Eg: 1" className="form-control"></input><br></br>
+              <button onClick={this.deletetable} type="reset" className="btn btn-lg btn-primary btn-block" style={{fontSize:15}}>DELETE TABLE</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </div>
+            </form>
+         </div>
+        </div>
+      </div>
 	</div>
 	</div>
 	 

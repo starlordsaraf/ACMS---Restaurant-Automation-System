@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-
+import './menu.css';
 
 export default class Register extends Component {
   constructor(props) {
@@ -56,10 +56,10 @@ export default class Register extends Component {
         <div className="row">
           <div className="col-md-6 mt-5 mx-auto">
             <form noValidate onSubmit={this.handleSubmit}>
-              <h1 className="h3 mb-3 font-weight-normal">Register</h1>
+              <h2>Register</h2>
               
               <div className="form-group">
-                <label htmlFor="name">Restaurant Name</label>
+                <label htmlFor="name">Restaurant_Name </label>
                 <input
                   type="text"
                   name="RName"
@@ -161,8 +161,3 @@ export default class Register extends Component {
     );
   }
 }
-
-
-
-
-
